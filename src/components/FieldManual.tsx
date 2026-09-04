@@ -119,28 +119,30 @@ function MarchDiagram({ v, size = 22 }: { v: number; size?: number }) {
 /* One capture example:  [you] → [enemy]  result */
 function CaptureRow({ you, enemy, ok, note }: { you: number; enemy: number; ok: boolean; note: string }) {
   return (
-    <div className="flex items-center gap-2.5 panel-flat panel-hover px-3 py-2.5">
-      <div className="w-9 h-9 shrink-0 rounded-full bg-gold text-[#241500] grid place-items-center font-display font-black shadow">
-        {you === 9 ? <CrownIcon className="w-5 h-5" /> : you}
+    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2.5 panel-flat panel-hover p-2.5 sm:px-3 sm:py-2.5">
+      <div className="flex items-center gap-2.5 shrink-0">
+        <div className="w-8 h-8 sm:w-9 sm:h-9 shrink-0 rounded-full bg-gold text-[#241500] grid place-items-center font-display font-black shadow text-sm sm:text-base">
+          {you === 9 ? <CrownIcon className="w-4 h-4 sm:w-5 sm:h-5" /> : you}
+        </div>
+        <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-mist shrink-0" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+          <path d="M4 12h14M13 6l6 6-6 6" />
+        </svg>
+        <div
+          className={`w-8 h-8 sm:w-9 sm:h-9 shrink-0 rounded-full text-white grid place-items-center font-display font-black shadow text-sm sm:text-base ${
+            enemy === 9 ? "bg-blood ring-2 ring-white/80" : "bg-blood"
+          }`}
+        >
+          {enemy === 9 ? <CrownIcon className="w-4 h-4 sm:w-5 sm:h-5" /> : enemy}
+        </div>
+        <span
+          className={`font-display font-black text-[11px] sm:text-xs tracking-[0.14em] px-2 py-0.5 sm:py-1 border shrink-0 ${
+            ok ? "text-[#7dffd4] border-[#2e8f74] bg-[#0d3b31]/60" : "text-blood-2 border-blood/50 bg-blood/10"
+          }`}
+        >
+          {ok ? "YES" : "NO"}
+        </span>
       </div>
-      <svg viewBox="0 0 24 24" className="w-4 h-4 text-mist shrink-0" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-        <path d="M4 12h14M13 6l6 6-6 6" />
-      </svg>
-      <div
-        className={`w-9 h-9 shrink-0 rounded-full text-white grid place-items-center font-display font-black shadow ${
-          enemy === 9 ? "bg-blood ring-2 ring-white/80" : "bg-blood"
-        }`}
-      >
-        {enemy === 9 ? <CrownIcon className="w-5 h-5" /> : enemy}
-      </div>
-      <span
-        className={`font-display font-black text-xs tracking-[0.14em] px-2 py-1 border shrink-0 ${
-          ok ? "text-[#7dffd4] border-[#2e8f74] bg-[#0d3b31]/60" : "text-blood-2 border-blood/50 bg-blood/10"
-        }`}
-      >
-        {ok ? "YES" : "NO"}
-      </span>
-      <span className="text-xs text-mist leading-snug min-w-0">{note}</span>
+      <span className="text-xs text-mist leading-snug min-w-0 flex-1">{note}</span>
     </div>
   );
 }
@@ -238,13 +240,13 @@ export default function FieldManual({ firstWar, onClose }: { firstWar: boolean; 
     >
       <div className="panel w-full max-w-3xl h-[94vh] flex flex-col overflow-hidden rise-in" style={{ height: "94dvh" }}>
         {/* header */}
-        <div className="shrink-0 flex items-center gap-2.5 sm:gap-3 px-4 sm:px-5 py-3 sm:py-3.5 border-b border-[#123f4a] bg-[#07222b]/80">
-          <CrownIcon className="w-6 h-6 text-gold shrink-0" />
+        <div className="shrink-0 flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2.5 sm:py-3.5 border-b border-[#123f4a] bg-[#07222b]/80">
+          <CrownIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gold shrink-0" />
           <div className="min-w-0">
-            <div className="font-display font-black text-gold text-base sm:text-xl tracking-[0.14em] leading-none">
+            <div className="font-display font-black text-gold text-sm sm:text-xl tracking-[0.12em] sm:tracking-[0.14em] leading-none">
               HOW TO PLAY
             </div>
-            <div className="text-[9px] uppercase tracking-[0.28em] text-mist mt-1">read once · about 60 seconds</div>
+            <div className="hidden xs:block text-[8.5px] sm:text-[9px] uppercase tracking-[0.22em] sm:tracking-[0.28em] text-mist mt-1 truncate">read once · about 60 seconds</div>
           </div>
           {firstWar && (
             <span className="hidden md:inline-block ml-2 text-[9px] uppercase tracking-[0.18em] text-gold-2 border border-gold/50 bg-gold/10 px-2 py-1 attn-badge">
@@ -253,12 +255,12 @@ export default function FieldManual({ firstWar, onClose }: { firstWar: boolean; 
           )}
           <div className="flex-1" />
           <button
-            className="btn-gold px-3.5 sm:px-6 py-2 text-[11px] sm:text-sm font-black tracking-[0.14em] sm:tracking-[0.18em]"
+            className="btn-gold px-3 sm:px-6 py-1.5 sm:py-2 text-[10px] sm:text-sm font-black tracking-[0.12em] sm:tracking-[0.18em] shrink-0 cursor-pointer"
             onClick={onClose}
           >
             {firstWar ? <><span className="hidden sm:inline">GOT IT — TO BATTLE</span><span className="sm:hidden">TO BATTLE</span></> : "CLOSE"}
           </button>
-          <button className="icon-btn hidden sm:grid" onClick={onClose} title="Close">
+          <button className="icon-btn hidden sm:grid shrink-0" onClick={onClose} title="Close">
             <CloseIcon />
           </button>
         </div>
@@ -375,16 +377,18 @@ export default function FieldManual({ firstWar, onClose }: { firstWar: boolean; 
             <div className="grid sm:grid-cols-2 gap-2.5">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((v, i) => (
                 <Rev key={v} delay={i * 40}>
-                  <div className="flex items-center gap-3.5 panel-flat panel-hover px-3 py-2.5">
-                    <span
-                      className={`w-10 h-10 shrink-0 grid place-items-center rounded-full font-display font-black text-lg shadow ${
-                        v === 9 ? "bg-gold text-[#241500] ring-2 ring-white/70" : "bg-gold/90 text-[#241500]"
-                      }`}
-                    >
-                      {v === 9 ? <CrownIcon className="w-5 h-5" /> : v}
-                    </span>
-                    <MarchDiagram v={v} size={17} />
-                    <div className="min-w-0">
+                  <div className="flex flex-col xs:flex-row items-start xs:items-center gap-2.5 xs:gap-3.5 panel-flat panel-hover p-2.5 sm:px-3 sm:py-2.5">
+                    <div className="flex items-center gap-2.5 shrink-0">
+                      <span
+                        className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 grid place-items-center rounded-full font-display font-black text-base sm:text-lg shadow ${
+                          v === 9 ? "bg-gold text-[#241500] ring-2 ring-white/70" : "bg-gold/90 text-[#241500]"
+                        }`}
+                      >
+                        {v === 9 ? <CrownIcon className="w-5 h-5" /> : v}
+                      </span>
+                      <MarchDiagram v={v} size={16} />
+                    </div>
+                    <div className="min-w-0 flex-1">
                       <div className="font-display font-bold text-fog text-[11px] tracking-[0.16em] uppercase">
                         {PIECE_NAMES[v]}
                       </div>

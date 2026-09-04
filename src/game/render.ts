@@ -105,7 +105,7 @@ export class Renderer {
     if (!this.canvas) return;
     const parent = this.canvas.parentElement;
     if (!parent) return;
-    this.dpr = Math.min(2, window.devicePixelRatio || 1);
+    this.dpr = Math.min(2.5, window.devicePixelRatio || 1);
     this.w = parent.clientWidth;
     this.h = parent.clientHeight;
     this.canvas.width = Math.max(1, Math.floor(this.w * this.dpr));
@@ -116,8 +116,8 @@ export class Renderer {
 
   // ── layout ──────────────────────────────────────────────────────────────────
   layout() {
-    // Dynamic responsive padding: 8px on narrow mobile, up to 20px on desktop
-    const pad = Math.max(8, Math.min(20, Math.floor(Math.min(this.w, this.h) * 0.025)));
+    // Dynamic responsive padding: 4px on narrow mobile, up to 20px on desktop
+    const pad = Math.max(4, Math.min(20, Math.floor(Math.min(this.w, this.h) * 0.025)));
     const availW = Math.max(1, this.w - pad * 2);
     const availH = Math.max(1, this.h - pad * 2);
     const cell = Math.max(16, Math.floor(Math.min(availW / N, availH / N)));

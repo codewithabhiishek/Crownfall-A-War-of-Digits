@@ -148,15 +148,39 @@ body {
   color: #a9dcd5;
   background: rgba(9, 34, 42, 0.6);
   transition: all 0.12s ease;
+  cursor: pointer;
+  touch-action: manipulation;
 }
 .icon-btn:hover {
   color: #ffffff;
   border-color: rgba(53, 240, 255, 0.55);
   box-shadow: 0 0 14px rgba(53, 240, 255, 0.2);
 }
+.icon-btn:active {
+  transform: scale(0.94);
+}
+.icon-btn:focus-visible,
+.btn-gold:focus-visible,
+.btn-ghost:focus-visible {
+  outline: 2px solid #ffc93c;
+  outline-offset: 2px;
+}
 .icon-btn:disabled {
   opacity: 0.3;
   pointer-events: none;
+}
+
+@media (max-width: 420px) {
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+}
+@media (max-width: 350px) {
+  .icon-btn {
+    width: 30px;
+    height: 30px;
+  }
 }
 
 .title-carved {
