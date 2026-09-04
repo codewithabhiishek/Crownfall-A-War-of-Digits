@@ -1038,15 +1038,21 @@ export default function App() {
           </div>
 
           {/* Center/Right Abhiishek Credit with Motion in Battle */}
-          <div className="author-badge shrink-0 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-gold/50 shadow-[0_0_12px_rgba(255,201,60,0.25)]">
+          <a
+            href="https://abhiishek.is-a.dev/"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Visit Abhishek's portfolio (abhiishek.is-a.dev)"
+            className="author-badge shrink-0 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-gold/50 shadow-[0_0_12px_rgba(255,201,60,0.25)] hover:border-gold hover:scale-105 active:scale-95 transition-all cursor-pointer"
+          >
             <span className="relative flex h-1.5 w-1.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span>
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-gold"></span>
             </span>
-            <span className="text-[9px] sm:text-[10px] font-display font-black uppercase tracking-[0.16em] text-gold-2 drop-shadow-[0_0_6px_rgba(255,201,60,0.6)]">
+            <span className="text-[8.5px] sm:text-[9.5px] font-display font-black uppercase tracking-[0.16em] text-gold-2 drop-shadow-[0_0_6px_rgba(255,201,60,0.6)]">
               ⚔️ Built by Abhishek
             </span>
-          </div>
+          </a>
 
           {hud.mustCrown[0] && hud.turn === 0 && !over && (
             <span className="attn-badge shrink-0 font-display font-bold text-[9px] sm:text-[10px] tracking-[0.18em] border border-blood/60 bg-blood/15 px-2 py-1">
@@ -1195,13 +1201,31 @@ export default function App() {
           </main>
 
           {/* Footer & Creator Signature */}
-          <footer className="relative z-10 w-full flex flex-col items-center justify-center gap-1.5 text-center py-2 shrink-0">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gold/30 bg-gold/5 shadow-[0_0_12px_rgba(255,201,60,0.1)]">
-              <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
-              <span className="text-[10px] sm:text-[11px] font-display font-semibold tracking-[0.26em] uppercase text-gold-2/90">
+          <footer className="relative z-10 w-full flex flex-col items-center justify-center gap-1 text-center py-2 shrink-0">
+            <a
+              href="https://abhiishek.is-a.dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Visit Abhishek's portfolio (abhiishek.is-a.dev)"
+              className="group inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-gold/40 bg-gold/[0.08] shadow-[0_0_10px_rgba(255,201,60,0.15)] hover:border-gold hover:bg-gold/15 hover:shadow-[0_0_18px_rgba(255,201,60,0.35)] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
+            >
+              <span className="relative flex h-1.5 w-1.5 shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-gold"></span>
+              </span>
+              <span className="text-[9px] sm:text-[10px] font-display font-bold tracking-[0.2em] uppercase text-gold-2/95 group-hover:text-gold-2">
                 BUILT BY ABHISHEK
               </span>
-            </div>
+              <svg
+                viewBox="0 0 12 12"
+                className="w-2.5 h-2.5 text-gold/60 group-hover:text-gold group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+              >
+                <path d="M3.5 8.5l5-5M4 3.5h4.5V8" />
+              </svg>
+            </a>
             <div className="text-[8px] sm:text-[9px] uppercase tracking-[0.22em] text-[#345b63]">
               touch / mouse to command · esc war council · M mute · U recall move
             </div>
