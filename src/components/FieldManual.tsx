@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MARCH, PIECE_NAMES, MARCH_TEXT } from "../game/engine";
 import { BladeIcon, BookIcon, CloseIcon, CrownIcon } from "./glyphs";
+import { sfx } from "../game/audio";
 
 /* A small 5×5 board used for picture-examples. */
 interface MiniPiece {
@@ -225,6 +226,7 @@ export default function FieldManual({ firstWar, onClose }: { firstWar: boolean; 
   }, []);
 
   const jump = (id: string) => {
+    sfx.tabSwitch();
     const el = scroller.current?.querySelector(`#${id}`);
     el?.scrollIntoView({ behavior: "smooth", block: "start" });
   };

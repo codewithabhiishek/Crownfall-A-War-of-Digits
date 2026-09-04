@@ -170,7 +170,7 @@ export default function App() {
     setManualFirst(false);
     setManualWasFirst(first);
     setManualOpen(true);
-    sfx.select();
+    sfx.manualOpen();
   }, []);
 
   const refresh = useCallback(() => {
@@ -334,7 +334,7 @@ export default function App() {
 
   const startGame = useCallback(
     (d: Difficulty) => {
-      sfx.unlock();
+      sfx.battleStart();
       diffRef.current = d;
       setDiff(d);
       if (aiTimer.current) window.clearTimeout(aiTimer.current);
@@ -371,6 +371,7 @@ export default function App() {
   );
 
   const toMenu = useCallback(() => {
+    sfx.buttonClick();
     if (aiTimer.current) window.clearTimeout(aiTimer.current);
     gameRef.current = null;
     const r = rendRef.current;
@@ -416,7 +417,7 @@ export default function App() {
       setSelInfo(
         `${PIECE_NAMES[p.value]} ${p.value} — ${MARCH_TEXT[p.value]} · ${targets.length - caps} squares to march${caps > 0 ? ` · ${caps} capture${caps > 1 ? "s" : ""} (red rings)` : ""}`,
       );
-      sfx.select();
+      sfx.chipSelect(p.value);
     },
     [toastMsg],
   );
@@ -590,7 +591,7 @@ export default function App() {
       }
       setSelReserve(v);
       r.view.deployDots = sqs;
-      sfx.select();
+      sfx.chipSelect(v);
       setSelInfo(
         v === 9
           ? "Place the CROWN — tap a glowing square in your bottom two rows. Guard it with your life."
@@ -604,6 +605,7 @@ export default function App() {
     if (screenRef.current !== "play") return;
     const g = gameRef.current;
     if (!g || g.over) return;
+    sfx.buttonClick();
     if (!pausedRef.current) {
       pausedRef.current = true;
       setPaused(true);
@@ -629,7 +631,7 @@ export default function App() {
     clearSel();
     refresh();
     setAiThinking(false);
-    sfx.select();
+    sfx.buttonClick();
     toastMsg("MOVE RECALLED");
     setHint(playerHint(gameRef.current));
   }, [aiThinking, clearSel, playerHint, refresh, toastMsg]);
@@ -1159,7 +1161,7 @@ export default function App() {
                       onClick={() => {
                         setDiff(d.id);
                         diffRef.current = d.id;
-                        sfx.select();
+                        sfx.foeSelect(d.id);
                       }}
                       className={`group text-left p-2.5 sm:p-3 rounded-[3px] border transition-all duration-200 cursor-pointer ${
                         isSelected
@@ -1266,7 +1268,7 @@ export default function App() {
           firstWar={manualWasFirst}
           onClose={() => {
             setManualOpen(false);
-            sfx.select();
+            sfx.manualClose();
           }}
         />
       )}

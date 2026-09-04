@@ -44,6 +44,31 @@ function tone(
   osc.stop(t0 + dur + 0.05);
 }
 
+function noise(dur: number, vol: number, filterFreq = 1800, delay = 0) {
+  const c = ensure();
+  if (!c || !master || muted) return;
+  const t0 = c.currentTime + delay;
+  const bufferSize = Math.max(256, Math.floor(c.sampleRate * dur));
+  const buffer = c.createBuffer(1, bufferSize, c.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = Math.random() * 2 - 1;
+  }
+  const noiseSource = c.createBufferSource();
+  noiseSource.buffer = buffer;
+  const filter = c.createBiquadFilter();
+  filter.type = "bandpass";
+  filter.frequency.setValueAtTime(filterFreq, t0);
+  filter.Q.setValueAtTime(1.5, t0);
+  const g = c.createGain();
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.linearRampToValueAtTime(vol, t0 + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  noiseSource.connect(filter).connect(g).connect(master);
+  noiseSource.start(t0);
+  noiseSource.stop(t0 + dur + 0.02);
+}
+
 export const sfx = {
   setMuted(m: boolean) {
     muted = m;
@@ -53,10 +78,68 @@ export const sfx = {
     ensure();
   },
   select() {
-    tone(660, 0.06, "triangle", 0.5);
+    // organic slight frequency variation so repeated clicks don't drone identically
+    const p = 630 + (Math.random() * 50 - 25);
+    tone(p, 0.05, "triangle", 0.42);
   },
   hover() {
-    tone(520, 0.03, "sine", 0.12);
+    tone(520, 0.025, "sine", 0.1);
+  },
+  buttonClick() {
+    tone(490, 0.05, "triangle", 0.4, 380);
+  },
+  tabSwitch() {
+    noise(0.04, 0.14, 2000);
+    tone(640, 0.045, "sine", 0.22, 500);
+  },
+  manualOpen() {
+    // crisp parchment rustle + leather tome opening tick
+    noise(0.08, 0.22, 2400);
+    tone(820, 0.06, "sine", 0.2, 600);
+    tone(410, 0.07, "triangle", 0.16, 290, 0.02);
+  },
+  manualClose() {
+    // soft wooden/leather book-closing thud
+    noise(0.06, 0.18, 1400);
+    tone(260, 0.09, "triangle", 0.38, 130);
+  },
+  foeSelect(diff: string) {
+    if (diff === "squire") {
+      // light, energetic brass blip
+      tone(520, 0.06, "triangle", 0.45, 680);
+      tone(820, 0.04, "sine", 0.25, undefined, 0.02);
+    } else if (diff === "knight") {
+      // sharp steel sword clink & shield tap
+      noise(0.03, 0.14, 3600);
+      tone(880, 0.07, "triangle", 0.5, 1120);
+      tone(1320, 0.05, "sine", 0.28);
+    } else {
+      // heavy, ominous warlord war-hammer strike
+      tone(150, 0.2, "sawtooth", 0.65, 70);
+      tone(220, 0.14, "triangle", 0.45, 110, 0.03);
+    }
+  },
+  chipSelect(v: number) {
+    if (v === 9) {
+      // royal golden chime for the Crown (King)
+      tone(880, 0.22, "sine", 0.55);
+      tone(1320, 0.26, "sine", 0.4, undefined, 0.03);
+      tone(1760, 0.18, "triangle", 0.3, undefined, 0.06);
+    } else {
+      // progressive harmonic pitch scale for units 1 through 8
+      const f = 360 + v * 52;
+      tone(f, 0.055, "triangle", 0.45, f + 28);
+      tone(f * 1.5, 0.03, "sine", 0.16);
+    }
+  },
+  battleStart() {
+    // grand war gong + rising brass trumpet fanfare
+    tone(130, 0.38, "triangle", 0.7, 50);
+    tone(80, 0.48, "sawtooth", 0.45, 40, 0.02);
+    tone(440, 0.15, "triangle", 0.45, undefined, 0.04);
+    tone(554, 0.18, "triangle", 0.5, undefined, 0.11);
+    tone(659, 0.22, "triangle", 0.55, undefined, 0.17);
+    tone(880, 0.38, "sawtooth", 0.62, 920, 0.24);
   },
   place() {
     tone(190, 0.14, "triangle", 0.9, 90);
