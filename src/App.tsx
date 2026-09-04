@@ -113,6 +113,7 @@ export default function App() {
   const gameRef = useRef<GameState | null>(null);
 
   const [screen, setScreen] = useState<"menu" | "play">("menu");
+  const [menuTab, setMenuTab] = useState<"brief" | "marches">("brief");
   const screenRef = useRef(screen);
   const [hud, setHud] = useState<Hud>(emptyHud);
   const [paused, setPaused] = useState(false);
@@ -686,11 +687,12 @@ export default function App() {
   })();
 
   // ── reserve chip ────────────────────────────────────────────────────────────
-  const reserveChip = (v: number, compact = false) => {
+  const reserveChip = (v: number, mode: "desktop" | "mobile" = "desktop") => {
     const avail = hud.reserves[0].includes(v);
     const selected = selReserve === v;
     const forced = hud.mustCrown[0] && hud.turn === 0;
     const dimByForce = forced && v !== 9;
+    const isCrownUnit = v === 9;
     return (
       <button
         key={v}
@@ -698,28 +700,38 @@ export default function App() {
         disabled={!inBattle || !!over || paused || !avail || hud.turn !== 0 || dimByForce}
         title={avail ? `${PIECE_NAMES[v]} — ${MARCH_TEXT[v]}` : `${PIECE_NAMES[v]} — already deployed`}
         className={[
-          "group relative flex flex-col items-center justify-center gap-0.5 border transition-all duration-150",
-          compact ? "w-12 h-12 shrink-0" : "py-2 px-1 min-h-[68px]",
+          "group relative flex flex-col items-center justify-center gap-0.5 border transition-all duration-150 select-none",
+          mode === "mobile"
+            ? "flex-1 min-w-0 h-[48px] px-0.5 py-1"
+            : "py-2 px-1 min-h-[68px]",
           selected
-            ? "border-gold bg-gold/20 text-gold-2 shadow-[0_0_16px_rgba(255,201,60,0.35)] -translate-y-0.5"
-            : avail && !dimByForce
-              ? "border-[#2a5a63] bg-[#0a2b34] text-gold hover:border-gold/70 hover:bg-[#0e3540] hover:-translate-y-0.5 hover:shadow-[0_0_12px_rgba(255,201,60,0.2)] active:scale-95"
-              : "border-[#1a3a42] bg-[#07222b] text-[#3f6a70]",
+            ? "border-gold bg-gold/25 text-gold-2 shadow-[0_0_16px_rgba(255,201,60,0.45)] -translate-y-0.5 z-10"
+            : isCrownUnit && avail && !dimByForce
+              ? "border-gold/80 bg-[#143224] text-gold-2 shadow-[0_0_10px_rgba(255,201,60,0.25)] hover:border-gold hover:bg-[#1a402d]"
+              : avail && !dimByForce
+                ? "border-[#2a5a63] bg-[#0a2b34] text-gold hover:border-gold/70 hover:bg-[#0e3540] hover:-translate-y-0.5 hover:shadow-[0_0_12px_rgba(255,201,60,0.2)] active:scale-95"
+                : "border-[#1a3a42]/70 bg-[#07222b]/80 text-[#3f6a70]",
+          forced && isCrownUnit ? "attn-badge ring-1 ring-gold" : "",
         ].join(" ")}
-        style={{ clipPath: "polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)" }}
+        style={{
+          clipPath:
+            mode === "mobile"
+              ? "polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)"
+              : "polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)",
+        }}
       >
-        <span className={`font-display font-black leading-none ${compact ? "text-lg" : "text-xl"} ${v === 9 ? "text-gold-2" : ""}`}>
+        <span className={`font-display font-black leading-none ${mode === "mobile" ? "text-base sm:text-lg" : "text-xl"} ${v === 9 ? "text-gold-2" : ""}`}>
           {v}
         </span>
-        <MarchGlyph v={v} className={compact ? "w-3.5 h-3.5 opacity-80" : "w-4 h-4 opacity-80"} />
-        {!compact && (
-          <span className="text-[8px] uppercase tracking-[0.14em] opacity-70 leading-none">
+        <MarchGlyph v={v} className={mode === "mobile" ? "w-3 h-3 opacity-80" : "w-4 h-4 opacity-80"} />
+        {mode === "desktop" && (
+          <span className="text-[8px] uppercase tracking-[0.14em] opacity-70 leading-none truncate max-w-full px-0.5">
             {PIECE_NAMES[v]}
           </span>
         )}
         {!avail && (
-          <span className="absolute inset-0 grid place-items-center">
-            <span className="block w-[70%] h-px bg-[#3f6a70] rotate-[-24deg]" />
+          <span className="absolute inset-0 grid place-items-center pointer-events-none">
+            <span className="block w-[75%] h-px bg-[#3f6a70] rotate-[-24deg]" />
           </span>
         )}
       </button>
@@ -879,21 +891,21 @@ export default function App() {
 
       {/* battle area */}
       <div className="flex-1 flex min-h-0">
-        {/* player panel */}
-        <aside className="hidden lg:flex w-64 shrink-0 flex-col gap-2.5 p-3 border-r border-[#123f4a] bg-[#051920]/70 overflow-y-auto">
-          <div className="panel panel-hover p-3">
+        {/* player panel (Tablet & Desktop: md:flex) */}
+        <aside className="hidden md:flex w-52 lg:w-60 xl:w-64 shrink-0 flex-col gap-2.5 p-2.5 lg:p-3 border-r border-[#123f4a] bg-[#051920]/70 overflow-y-auto">
+          <div className="panel panel-hover p-2.5 lg:p-3">
             <div className="flex items-baseline justify-between">
-              <span className="font-display font-bold text-gold text-sm tracking-[0.18em]">YOUR WARBAND</span>
-              <span className="font-display font-black text-gold-2 text-2xl leading-none overflow-hidden" title="War score">
+              <span className="font-display font-bold text-gold text-xs lg:text-sm tracking-[0.18em]">YOUR WARBAND</span>
+              <span className="font-display font-black text-gold-2 text-xl lg:text-2xl leading-none overflow-hidden" title="War score">
                 <span key={hud.score[0]} className="tick inline-block">{hud.score[0]}</span>
               </span>
             </div>
             <div className="mt-2.5 grid grid-cols-3 gap-1.5">
-              {RESERVE_ORDER.map((v) => reserveChip(v))}
+              {RESERVE_ORDER.map((v) => reserveChip(v, "desktop"))}
             </div>
             <div className="mt-2 flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-mist">
               <span>Crown</span>
-              <span className={`flex items-center gap-1 ${hud.crownOnBoard[0] ? "text-gold" : "text-[#3f6a70]"}`}>
+              <span className={`flex items-center gap-1 ${hud.crownOnBoard[0] ? "text-gold font-bold" : "text-[#3f6a70]"}`}>
                 <CrownIcon className="w-3.5 h-3.5" />
                 {hud.crownOnBoard[0] ? "on the field" : "in reserve"}
               </span>
@@ -905,7 +917,7 @@ export default function App() {
               </span>
             </div>
           </div>
-          <div className="panel-flat p-3">
+          <div className="panel-flat p-2.5 lg:p-3">
             <div className="text-[10px] uppercase tracking-[0.22em] text-blood-2 font-bold mb-1.5">Foes slain</div>
             {captureTokens(hud.captures[0], "blood")}
           </div>
@@ -913,20 +925,32 @@ export default function App() {
 
         {/* board column */}
         <main className="flex-1 flex flex-col min-w-0 min-h-0">
-          {/* enemy strip (mobile) */}
-          <div className="lg:hidden flex items-center gap-2 px-3 py-1.5 border-b border-[#123f4a] bg-[#12060a]/40 shrink-0 overflow-x-auto">
-            <span className="font-display font-bold text-blood text-[11px] tracking-[0.18em] shrink-0">CRIMSON COURT</span>
-            <span className="font-display font-black text-blood-2 text-sm shrink-0">{hud.score[1]}</span>
-            <span className="flex gap-0.5 ml-auto shrink-0">
-              {RESERVE_ORDER.map((v) =>
-                hud.reserves[1].includes(v) ? (
-                  <span key={v} className="w-4 h-4 grid place-items-center text-[9px] font-bold text-blood-2 border border-blood/40 bg-blood/10">
-                    {v}
-                  </span>
-                ) : null,
-              )}
-            </span>
-            <span className="text-[10px] text-mist shrink-0">slain your {hud.captures[1].length}</span>
+          {/* enemy strip (mobile: < md) */}
+          <div className="md:hidden flex items-center justify-between gap-2 px-3 py-1.5 border-b border-[#123f4a] bg-[#12060a]/50 shrink-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="font-display font-bold text-blood text-xs tracking-[0.16em] shrink-0">CRIMSON COURT</span>
+              <span className="font-display font-black text-blood-2 text-sm shrink-0">{hud.score[1]} pts</span>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="text-[9px] uppercase tracking-wider text-mist">Reserves:</span>
+              <div className="flex gap-0.5">
+                {RESERVE_ORDER.map((v) =>
+                  hud.reserves[1].includes(v) ? (
+                    <span
+                      key={v}
+                      className={`w-4 h-4 grid place-items-center text-[9px] font-bold border ${
+                        v === 9 ? "text-gold border-gold/70 bg-gold/15" : "text-blood-2 border-blood/40 bg-blood/10"
+                      }`}
+                    >
+                      {v}
+                    </span>
+                  ) : null,
+                )}
+                {hud.reserves[1].length === 0 && (
+                  <span className="text-[9px] text-[#3f6a70] uppercase tracking-wider">Empty</span>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="relative flex-1 min-h-0">
@@ -950,27 +974,42 @@ export default function App() {
             )}
           </div>
 
-          {/* player strip (mobile) */}
-          <div className="lg:hidden flex items-center gap-1.5 px-2 py-1.5 border-t border-[#123f4a] bg-[#051920]/80 overflow-x-auto shrink-0">
-            <span className="font-display font-bold text-gold text-[11px] tracking-[0.14em] shrink-0 pr-1">WARBAND</span>
-            {RESERVE_ORDER.map((v) => reserveChip(v, true))}
-            <span className="shrink-0 pl-2 text-[10px] uppercase tracking-widest text-mist">score {hud.score[0]}</span>
+          {/* player strip (mobile: < md, full-width non-scrolling flex tray) */}
+          <div className="md:hidden flex flex-col gap-1 px-2 py-1.5 border-t border-[#123f4a] bg-[#051920]/90 shrink-0">
+            <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.14em] px-0.5 text-mist">
+              <span className="font-display font-bold text-gold text-[11px] tracking-[0.18em]">WARBAND DEPLOY</span>
+              <span className="flex items-center gap-2">
+                <span>Score: <strong className="text-gold-2 font-display font-black">{hud.score[0]}</strong></span>
+                <span className={hud.crownOnBoard[0] ? "text-gold font-bold" : "text-[#3f6a70]"}>
+                  Crown: {hud.crownOnBoard[0] ? "On Field" : "Reserve"}
+                </span>
+              </span>
+            </div>
+            {/* 9 pieces in a single adaptive flex row across the screen */}
+            <div className="flex items-center gap-1 w-full">
+              {RESERVE_ORDER.map((v) => reserveChip(v, "mobile"))}
+            </div>
           </div>
         </main>
 
-        {/* enemy panel */}
-        <aside className="hidden lg:flex w-64 shrink-0 flex-col gap-2.5 p-3 border-l border-[#123f4a] bg-[#0d070b]/40 overflow-y-auto">
-          <div className="panel panel-hover p-3">
+        {/* enemy panel (Tablet & Desktop: md:flex) */}
+        <aside className="hidden md:flex w-52 lg:w-60 xl:w-64 shrink-0 flex-col gap-2.5 p-2.5 lg:p-3 border-l border-[#123f4a] bg-[#0d070b]/40 overflow-y-auto">
+          <div className="panel panel-hover p-2.5 lg:p-3">
             <div className="flex items-baseline justify-between">
-              <span className="font-display font-bold text-blood text-sm tracking-[0.14em]">CRIMSON COURT</span>
-              <span className="font-display font-black text-blood-2 text-2xl leading-none overflow-hidden">
+              <span className="font-display font-bold text-blood text-xs lg:text-sm tracking-[0.14em]">CRIMSON COURT</span>
+              <span className="font-display font-black text-blood-2 text-xl lg:text-2xl leading-none overflow-hidden">
                 <span key={hud.score[1]} className="tick inline-block">{hud.score[1]}</span>
               </span>
             </div>
             <div className="mt-2.5 flex flex-wrap gap-1.5">
               {RESERVE_ORDER.map((v) =>
                 hud.reserves[1].includes(v) ? (
-                  <span key={v} className="w-8 h-8 grid place-items-center text-sm font-display font-bold text-blood-2 border border-blood/40 bg-blood/10">
+                  <span
+                    key={v}
+                    className={`w-7 h-7 sm:w-8 sm:h-8 grid place-items-center text-xs sm:text-sm font-display font-bold border ${
+                      v === 9 ? "text-gold border-gold/70 bg-gold/15" : "text-blood-2 border-blood/40 bg-blood/10"
+                    }`}
+                  >
                     {v}
                   </span>
                 ) : null,
@@ -981,7 +1020,7 @@ export default function App() {
             </div>
             <div className="mt-2 flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-mist">
               <span>Crown</span>
-              <span className={`flex items-center gap-1 ${hud.crownOnBoard[1] ? "text-blood-2" : "text-[#3f6a70]"}`}>
+              <span className={`flex items-center gap-1 ${hud.crownOnBoard[1] ? "text-blood-2 font-bold" : "text-[#3f6a70]"}`}>
                 <CrownIcon className="w-3.5 h-3.5" />
                 {hud.crownOnBoard[1] ? "on the field" : "in reserve"}
               </span>
@@ -993,12 +1032,12 @@ export default function App() {
               </span>
             </div>
           </div>
-          <div className="panel-flat p-3">
+          <div className="panel-flat p-2.5 lg:p-3">
             <div className="text-[10px] uppercase tracking-[0.22em] text-gold-2 font-bold mb-1.5">Your fallen</div>
             {captureTokens(hud.captures[1], "gold")}
           </div>
           {hud.mustCrown[1] && !over && (
-            <div className="panel-flat p-3 text-[10px] uppercase tracking-[0.2em] text-blood-2 text-center border-blood/40">
+            <div className="panel-flat p-2.5 text-[10px] uppercase tracking-[0.2em] text-blood-2 text-center border-blood/40">
               decree: the enemy crown musters
             </div>
           )}
@@ -1051,148 +1090,188 @@ export default function App() {
       {/* ── MENU ── */}
       {screen === "menu" && (
         <div
-          className="overlay-in absolute inset-0 z-40 bg-gradient-to-br from-[#04151b]/92 via-[#04151b]/78 to-[#04151b]/92 overflow-y-auto"
+          className="overlay-in absolute inset-0 z-40 bg-gradient-to-br from-[#04151b]/95 via-[#04151b]/85 to-[#04151b]/95 overflow-y-auto"
           style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
         >
-          <div className="min-h-full max-w-6xl mx-auto px-4 sm:px-8 py-6 sm:py-8 grid lg:grid-cols-[1.05fr_0.95fr] gap-8 lg:gap-12 items-center">
-            <div className="rise-in">
-              <div className="flex items-center gap-2 text-flux text-[11px] font-bold uppercase tracking-[0.34em]">
-                <span className="w-8 h-px bg-flux/60" />
-                sudoku law × chess march
-              </div>
-              <div className="relative">
-                <CrownIcon className="absolute -left-9 top-0 w-7 h-7 text-gold/25 float-slow hidden sm:block" />
-                <CrownIcon className="absolute -right-2 -bottom-2 w-5 h-5 text-blood/30 float-slower hidden sm:block" />
-                <h1 className="title-carved title-glow font-black text-5xl sm:text-7xl xl:text-8xl leading-[0.95] mt-4">
-                  CROWN
-                  <br />
-                  FALL
-                </h1>
-              </div>
-              <p className="text-mist text-sm sm:text-base max-w-md mt-5 leading-relaxed">
-                Muster a warband of digits onto the 7×7 field. Every digit marches by its own law,
-                the <span className="text-fog font-semibold">Law of Rows</span> forbids equal digits
-                sharing a line — and any blade may slay{" "}
-                <span className="text-blood-2 font-semibold">the Crown</span>.
-              </p>
+          <div className="min-h-full max-w-6xl mx-auto px-4 sm:px-8 py-5 sm:py-8 flex flex-col justify-center">
+            {/* Mobile Tab Switcher (< lg) */}
+            <div className="lg:hidden flex items-center justify-center gap-2 mb-4 shrink-0">
+              <button
+                onClick={() => setMenuTab("brief")}
+                className={`flex-1 max-w-[200px] py-2 px-3 text-xs font-display font-bold uppercase tracking-[0.14em] border transition-all duration-150 ${
+                  menuTab === "brief"
+                    ? "border-gold text-gold-2 bg-gold/15 shadow-[0_0_12px_rgba(255,201,60,0.25)]"
+                    : "border-[#1a4a54] text-mist hover:text-fog bg-[#0a2b34]/40"
+                }`}
+                style={{ clipPath: "polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)" }}
+              >
+                BATTLE DECREE
+              </button>
+              <button
+                onClick={() => setMenuTab("marches")}
+                className={`flex-1 max-w-[200px] py-2 px-3 text-xs font-display font-bold uppercase tracking-[0.14em] border transition-all duration-150 ${
+                  menuTab === "marches"
+                    ? "border-gold text-gold-2 bg-gold/15 shadow-[0_0_12px_rgba(255,201,60,0.25)]"
+                    : "border-[#1a4a54] text-mist hover:text-fog bg-[#0a2b34]/40"
+                }`}
+                style={{ clipPath: "polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)" }}
+              >
+                MARCH TABLE (9)
+              </button>
+            </div>
 
-              <ol className="mt-6 space-y-2.5 max-w-md">
-                {[
-                  ["01", "THE MUSTER", "Each turn: deploy a digit from reserve, or march a piece already on the field."],
-                  ["02", "THE LAW OF ROWS", "No two pieces of equal value may share a row or column. The Crown is exempt — but must enter from your home rows by your fifth turn."],
-                  ["03", "THE SLAYING", "A piece captures equals and lesser values. Any piece may slay the Crown; the Crown may slay anything."],
-                  ["04", "THE DECREE", "60 moves total. When they burn out, the greater war-material wins. Slay the enemy Crown and win at once."],
-                ].map(([n, t, d], i) => (
-                  <li
-                    key={n}
-                    className="rise-in flex gap-3 items-start panel-flat px-3.5 py-2.5 transition-all duration-150 hover:translate-x-1 hover:border-gold/40"
-                    style={{ animationDelay: `${0.25 + i * 0.1}s` }}
-                  >
-                    <span className="font-display font-black text-gold text-lg leading-none mt-0.5">{n}</span>
-                    <span className="text-xs leading-relaxed">
-                      <span className="font-display font-bold text-fog tracking-[0.14em] text-[11px] uppercase block mb-0.5">{t}</span>
-                      <span className="text-mist">{d}</span>
-                    </span>
-                  </li>
-                ))}
-              </ol>
+            <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-6 lg:gap-12 items-center">
+              {/* Left Column: Briefing, Rules & Actions */}
+              <div className={`rise-in ${menuTab !== "brief" ? "hidden lg:block" : "block"}`}>
+                <div className="flex items-center gap-2 text-flux text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.3em]">
+                  <span className="w-6 sm:w-8 h-px bg-flux/60" />
+                  sudoku law × chess march
+                </div>
+                <div className="relative">
+                  <CrownIcon className="absolute -left-9 top-0 w-7 h-7 text-gold/25 float-slow hidden sm:block" />
+                  <CrownIcon className="absolute -right-2 -bottom-2 w-5 h-5 text-blood/30 float-slower hidden sm:block" />
+                  <h1 className="title-carved title-glow font-black text-4xl sm:text-7xl xl:text-8xl leading-[0.95] mt-2 sm:mt-4">
+                    CROWN
+                    <br />
+                    FALL
+                  </h1>
+                </div>
+                <p className="text-mist text-xs sm:text-base max-w-md mt-3 sm:mt-5 leading-relaxed">
+                  Muster a warband of digits onto the 7×7 field. Every digit marches by its own law,
+                  the <span className="text-fog font-semibold">Law of Rows</span> forbids equal digits
+                  sharing a line — and any blade may slay{" "}
+                  <span className="text-blood-2 font-semibold">the Crown</span>.
+                </p>
 
-              <div className="mt-7">
-                <div className="text-[10px] uppercase tracking-[0.3em] text-mist mb-2">Choose your foe</div>
-                <div className="flex gap-2 flex-wrap">
-                  {DIFFS.map((d) => (
-                    <button
-                      key={d.id}
-                      onClick={() => {
-                        setDiff(d.id);
-                        diffRef.current = d.id;
-                        sfx.select();
-                      }}
-                      className={[
-                        "px-4 py-2 border transition-all duration-150 hover:-translate-y-0.5 active:scale-95",
-                        diff === d.id ? "btn-gold border-gold" : "btn-ghost",
-                      ].join(" ")}
-                      style={{ clipPath: "polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)" }}
+                <ol className="mt-4 sm:mt-6 space-y-2 max-w-md">
+                  {[
+                    ["01", "THE MUSTER", "Deploy a digit from reserve, or march a piece on the field."],
+                    ["02", "THE LAW OF ROWS", "No two equal digits may share a row or column. The Crown is exempt — must enter by turn 5."],
+                    ["03", "THE SLAYING", "A piece captures equals and lesser values. Any piece may slay the Crown."],
+                    ["04", "THE DECREE", "60 moves total. When spent, greater war-material wins. Slay the enemy Crown to win instantly."],
+                  ].map(([n, t, d], i) => (
+                    <li
+                      key={n}
+                      className="rise-in flex gap-2.5 sm:gap-3 items-start panel-flat px-3 py-2 transition-all duration-150 hover:translate-x-1 hover:border-gold/40"
+                      style={{ animationDelay: `${0.2 + i * 0.08}s` }}
                     >
-                      <span className="font-display font-bold text-sm tracking-[0.16em] block leading-none">{d.name}</span>
-                      <span className={`text-[10px] ${diff === d.id ? "text-[#5c3c00]" : "text-mist"}`}>{d.blurb}</span>
+                      <span className="font-display font-black text-gold text-base sm:text-lg leading-none mt-0.5">{n}</span>
+                      <span className="text-xs leading-relaxed">
+                        <span className="font-display font-bold text-fog tracking-[0.14em] text-[10px] sm:text-[11px] uppercase block mb-0.5">{t}</span>
+                        <span className="text-mist text-[11px] sm:text-xs">{d}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+
+                <div className="mt-5 sm:mt-7">
+                  <div className="text-[10px] uppercase tracking-[0.25em] text-mist mb-1.5">Choose your foe</div>
+                  <div className="flex gap-2 flex-wrap">
+                    {DIFFS.map((d) => (
+                      <button
+                        key={d.id}
+                        onClick={() => {
+                          setDiff(d.id);
+                          diffRef.current = d.id;
+                          sfx.select();
+                        }}
+                        className={[
+                          "px-3 sm:px-4 py-2 border transition-all duration-150 hover:-translate-y-0.5 active:scale-95",
+                          diff === d.id ? "btn-gold border-gold" : "btn-ghost",
+                        ].join(" ")}
+                        style={{ clipPath: "polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)" }}
+                      >
+                        <span className="font-display font-bold text-xs sm:text-sm tracking-[0.14em] sm:tracking-[0.16em] block leading-none">{d.name}</span>
+                        <span className={`text-[9px] sm:text-[10px] ${diff === d.id ? "text-[#5c3c00]" : "text-mist"}`}>{d.blurb}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-4 sm:mt-5 flex flex-wrap items-center gap-2.5 sm:gap-3">
+                    <button
+                      onClick={() => startGame(diff)}
+                      className="btn-gold btn-shine crown-bob px-8 sm:px-12 py-3 sm:py-3.5 text-lg sm:text-xl font-black tracking-[0.18em] sm:tracking-[0.2em]"
+                    >
+                      TO BATTLE
                     </button>
+                    <button
+                      onClick={() => openManual(false)}
+                      className="btn-ghost px-5 sm:px-6 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold tracking-[0.16em] sm:tracking-[0.18em] flex items-center gap-2 hover:-translate-y-0.5 active:scale-95"
+                    >
+                      <BookIcon className="w-4 h-4" />
+                      <span>FIELD MANUAL</span>
+                      <span className="text-[9px] uppercase tracking-[0.14em] opacity-70 hidden sm:inline">rules & tactics</span>
+                    </button>
+                  </div>
+                  <p className="mt-2 text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-[#5f8b8f]">
+                    New commander? The manual opens automatically before your first war.
+                  </p>
+                </div>
+              </div>
+
+              {/* Right Column: March Table */}
+              <div className={`panel p-3.5 sm:p-5 rise-in ${menuTab !== "marches" ? "hidden lg:block" : "block"}`} style={{ animationDelay: "0.1s" }}>
+                <div className="flex items-center justify-between mb-2.5 sm:mb-3">
+                  <span className="font-display font-bold text-fog tracking-[0.2em] sm:tracking-[0.24em] text-xs sm:text-sm">THE MARCH TABLE</span>
+                  <CrownIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
+                </div>
+                <div className="space-y-1 sm:space-y-1.5">
+                  {RESERVE_ORDER.map((v) => (
+                    <div
+                      key={v}
+                      className="flex items-center gap-2 sm:gap-3 px-2 sm:px-2.5 py-1 sm:py-1.5 bg-[#0a2b34]/60 border border-[#1a4a54]/50 transition-all duration-150 hover:bg-[#0e3540]/70 hover:border-flux/40 hover:translate-x-1"
+                    >
+                      <span className={`w-7 h-7 sm:w-8 sm:h-8 grid place-items-center font-display font-black text-sm sm:text-base border shrink-0 ${v === 9 ? "text-gold-2 border-gold/60 bg-gold/10" : "text-gold border-gold/30 bg-[#0e3540]"}`}>
+                        {v}
+                      </span>
+                      <span className="w-16 sm:w-20 font-display font-bold text-[10px] sm:text-[11px] tracking-[0.12em] sm:tracking-[0.14em] text-fog uppercase shrink-0">{PIECE_NAMES[v]}</span>
+                      <MarchGlyph v={v} className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-flux shrink-0" />
+                      <span className="text-[10px] sm:text-[11px] text-mist leading-tight min-w-0 truncate sm:whitespace-normal">{MARCH_TEXT[v]}</span>
+                    </div>
                   ))}
                 </div>
-                <div className="mt-5 flex flex-wrap items-center gap-3">
+                <p className="text-[9px] sm:text-[10px] text-[#5f8b8f] mt-2.5 sm:mt-3 leading-relaxed">
+                  Slides are blocked by any piece; the Knight leaps over all. Gold is your house,
+                  crimson the enemy court.
+                </p>
+                {/* Quick button to return to briefing on mobile */}
+                <div className="lg:hidden mt-3 pt-2 border-t border-[#1a4a54]/40 flex justify-end">
                   <button
-                    onClick={() => startGame(diff)}
-                    className="btn-gold btn-shine crown-bob px-12 py-3.5 text-xl font-black tracking-[0.2em]"
+                    onClick={() => setMenuTab("brief")}
+                    className="text-xs font-display font-bold text-gold hover:underline uppercase tracking-wider"
                   >
-                    TO BATTLE
-                  </button>
-                  <button
-                    onClick={() => openManual(false)}
-                    className="btn-ghost px-6 py-3.5 text-sm font-semibold tracking-[0.18em] flex items-center gap-2.5 hover:-translate-y-0.5 active:scale-95"
-                  >
-                    <BookIcon className="w-4 h-4" />
-                    <span>FIELD MANUAL</span>
-                    <span className="text-[9px] uppercase tracking-[0.14em] opacity-70 hidden sm:inline">how to play</span>
+                    ← Back to Briefing
                   </button>
                 </div>
-                <p className="mt-2.5 text-[10px] uppercase tracking-[0.22em] text-[#5f8b8f]">
-                  New commander? The manual opens automatically before your first war.
-                </p>
               </div>
             </div>
 
-            <div className="panel p-5 rise-in" style={{ animationDelay: "0.1s" }}>
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-display font-bold text-fog tracking-[0.24em] text-sm">THE MARCH TABLE</span>
-                <CrownIcon className="w-5 h-5 text-gold" />
-              </div>
-              <div className="space-y-1">
-                {RESERVE_ORDER.map((v) => (
-                  <div
-                    key={v}
-                    className="flex items-center gap-3 px-2.5 py-1.5 bg-[#0a2b34]/60 border border-[#1a4a54]/50 transition-all duration-150 hover:bg-[#0e3540]/70 hover:border-flux/40 hover:translate-x-1"
-                  >
-                    <span className={`w-8 h-8 grid place-items-center font-display font-black text-base border ${v === 9 ? "text-gold-2 border-gold/60 bg-gold/10" : "text-gold border-gold/30 bg-[#0e3540]"}`}>
-                      {v}
-                    </span>
-                    <span className="w-20 font-display font-bold text-[11px] tracking-[0.14em] text-fog uppercase">{PIECE_NAMES[v]}</span>
-                    <MarchGlyph v={v} className="w-4 h-4 text-flux shrink-0" />
-                    <span className="text-[11px] text-mist leading-tight">{MARCH_TEXT[v]}</span>
-                  </div>
-                ))}
-              </div>
-              <p className="text-[10px] text-[#5f8b8f] mt-3 leading-relaxed">
-                Slides are blocked by any piece; the Knight leaps over all. Gold is your house,
-                crimson the enemy court.
-              </p>
+            <div className="mt-4 sm:mt-6 text-[9px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.26em] text-[#3f6a70] text-center">
+              touch / mouse to command · esc war council · M mute · U recall move
             </div>
-          </div>
-          <div className="max-w-6xl mx-auto px-5 sm:px-8 pb-6 text-[10px] uppercase tracking-[0.26em] text-[#3f6a70]">
-            mouse / tap to command · esc war council · M mute · U recall move
           </div>
         </div>
       )}
 
       {/* ── PAUSE ── */}
       {paused && inBattle && !over && !manualOpen && (
-        <div className="overlay-in absolute inset-0 z-40 bg-[#04151b]/85 backdrop-blur-sm grid place-items-center p-4">
-          <div className="panel p-8 w-full max-w-sm rise-in text-center">
-            <div className="font-display font-black text-3xl tracking-[0.18em] text-fog">WAR COUNCIL</div>
-            <div className="text-[10px] uppercase tracking-[0.3em] text-mist mt-1">the field holds its breath</div>
-            <div className="mt-6 flex flex-col gap-2.5">
-              <button className="btn-gold px-6 py-3 text-base font-black tracking-[0.2em]" onClick={togglePause}>
+        <div className="overlay-in fixed inset-0 z-50 bg-[#04151b]/85 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="panel p-6 sm:p-8 w-full max-w-sm rise-in text-center">
+            <div className="font-display font-black text-2xl sm:text-3xl tracking-[0.18em] text-fog">WAR COUNCIL</div>
+            <div className="text-[10px] uppercase tracking-[0.26em] text-mist mt-1">the field holds its breath</div>
+            <div className="mt-5 sm:mt-6 flex flex-col gap-2.5">
+              <button className="btn-gold px-6 py-3 text-sm sm:text-base font-black tracking-[0.2em]" onClick={togglePause}>
                 RESUME
               </button>
-              <button className="btn-ghost px-6 py-2.5 text-sm font-semibold tracking-[0.18em] flex items-center justify-center gap-2" onClick={() => startGame(diff)}>
+              <button className="btn-ghost px-6 py-2.5 text-xs sm:text-sm font-semibold tracking-[0.16em] flex items-center justify-center gap-2" onClick={() => startGame(diff)}>
                 <RestartIcon /> RESTART BATTLE
               </button>
               <button
-                className="btn-ghost px-6 py-2.5 text-sm font-semibold tracking-[0.18em] flex items-center justify-center gap-2"
+                className="btn-ghost px-6 py-2.5 text-xs sm:text-sm font-semibold tracking-[0.16em] flex items-center justify-center gap-2"
                 onClick={() => openManual(false)}
               >
                 <BookIcon /> FIELD MANUAL
               </button>
-              <button className="btn-ghost px-6 py-2.5 text-sm font-semibold tracking-[0.18em] flex items-center justify-center gap-2" onClick={toMenu}>
+              <button className="btn-ghost px-6 py-2.5 text-xs sm:text-sm font-semibold tracking-[0.16em] flex items-center justify-center gap-2" onClick={toMenu}>
                 <FlagIcon /> ABANDON SIEGE
               </button>
             </div>
@@ -1213,44 +1292,44 @@ export default function App() {
 
       {/* ── GAME OVER ── */}
       {showOver && over && verdict && (
-        <div className="overlay-in absolute inset-0 z-40 bg-[#04151b]/72 backdrop-blur-[3px] grid place-items-center p-4">
-          <div className="panel p-8 sm:p-10 w-full max-w-md text-center rise-in">
-            <CrownIcon className={`w-10 h-10 mx-auto ${verdict.tone}`} />
-            <div className={`font-display font-black text-5xl sm:text-6xl tracking-[0.1em] mt-2 ${verdict.tone}`}>
+        <div className="overlay-in fixed inset-0 z-50 bg-[#04151b]/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="panel p-6 sm:p-10 w-full max-w-md text-center rise-in my-auto">
+            <CrownIcon className={`w-9 h-9 sm:w-10 sm:h-10 mx-auto ${verdict.tone}`} />
+            <div className={`font-display font-black text-4xl sm:text-6xl tracking-[0.1em] mt-2 ${verdict.tone}`}>
               {verdict.title}
             </div>
-            <p className="text-mist text-sm mt-3 leading-relaxed">{verdict.sub}</p>
-            <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-2 text-left text-xs">
+            <p className="text-mist text-xs sm:text-sm mt-2 sm:mt-3 leading-relaxed">{verdict.sub}</p>
+            <div className="mt-5 sm:mt-6 grid grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-2 text-left text-xs">
               <div className="flex justify-between border-b border-[#1a4a54]/60 pb-1">
-                <span className="text-mist uppercase tracking-widest text-[10px]">War score</span>
-                <span className="font-display font-bold text-gold-2 text-base">{hud.score[0]}</span>
+                <span className="text-mist uppercase tracking-widest text-[9px] sm:text-[10px]">War score</span>
+                <span className="font-display font-bold text-gold-2 text-sm sm:text-base">{hud.score[0]}</span>
               </div>
               <div className="flex justify-between border-b border-[#1a4a54]/60 pb-1">
-                <span className="text-mist uppercase tracking-widest text-[10px]">Enemy score</span>
-                <span className="font-display font-bold text-blood-2 text-base">{hud.score[1]}</span>
+                <span className="text-mist uppercase tracking-widest text-[9px] sm:text-[10px]">Enemy score</span>
+                <span className="font-display font-bold text-blood-2 text-sm sm:text-base">{hud.score[1]}</span>
               </div>
               <div className="flex justify-between border-b border-[#1a4a54]/60 pb-1">
-                <span className="text-mist uppercase tracking-widest text-[10px]">Foes slain</span>
+                <span className="text-mist uppercase tracking-widest text-[9px] sm:text-[10px]">Foes slain</span>
                 <span className="text-fog font-bold">{hud.captures[0].length}</span>
               </div>
               <div className="flex justify-between border-b border-[#1a4a54]/60 pb-1">
-                <span className="text-mist uppercase tracking-widest text-[10px]">Your fallen</span>
+                <span className="text-mist uppercase tracking-widest text-[9px] sm:text-[10px]">Your fallen</span>
                 <span className="text-fog font-bold">{hud.captures[1].length}</span>
               </div>
               <div className="flex justify-between border-b border-[#1a4a54]/60 pb-1">
-                <span className="text-mist uppercase tracking-widest text-[10px]">Moves</span>
+                <span className="text-mist uppercase tracking-widest text-[9px] sm:text-[10px]">Moves</span>
                 <span className="text-fog font-bold">{totalPlies}</span>
               </div>
               <div className="flex justify-between border-b border-[#1a4a54]/60 pb-1">
-                <span className="text-mist uppercase tracking-widest text-[10px]">Time</span>
+                <span className="text-mist uppercase tracking-widest text-[9px] sm:text-[10px]">Time</span>
                 <span className="text-fog font-bold">{fmtTime(seconds)}</span>
               </div>
             </div>
-            <div className="mt-7 flex flex-col gap-2.5">
-              <button className="btn-gold px-6 py-3 text-base font-black tracking-[0.2em]" onClick={() => startGame(diff)}>
+            <div className="mt-6 sm:mt-7 flex flex-col gap-2.5">
+              <button className="btn-gold px-6 py-3 text-sm sm:text-base font-black tracking-[0.2em]" onClick={() => startGame(diff)}>
                 FIGHT AGAIN
               </button>
-              <button className="btn-ghost px-6 py-2.5 text-sm font-semibold tracking-[0.18em] flex items-center justify-center gap-2" onClick={toMenu}>
+              <button className="btn-ghost px-6 py-2.5 text-xs sm:text-sm font-semibold tracking-[0.16em] flex items-center justify-center gap-2" onClick={toMenu}>
                 <FlagIcon /> WAR COUNCIL
               </button>
             </div>

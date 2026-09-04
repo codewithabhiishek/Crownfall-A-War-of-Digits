@@ -262,7 +262,7 @@ export default function FieldManual({ firstWar, onClose }: { firstWar: boolean; 
         </div>
 
         {/* chapter nav */}
-        <div className="shrink-0 flex gap-1.5 px-3 sm:px-4 py-2.5 overflow-x-auto border-b border-[#123f4a]/70 bg-[#061d25]/60">
+        <div className="shrink-0 flex gap-1.5 px-3 sm:px-4 py-2.5 overflow-x-auto no-scrollbar border-b border-[#123f4a]/70 bg-[#061d25]/60">
           {CHAPTERS.map(([id, label]) => (
             <button
               key={id}

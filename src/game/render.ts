@@ -116,10 +116,15 @@ export class Renderer {
 
   // ── layout ──────────────────────────────────────────────────────────────────
   layout() {
-    const pad = 18;
-    const cell = Math.max(20, Math.floor(Math.min((this.w - pad * 2) / N, (this.h - pad * 2) / N)));
+    // Dynamic responsive padding: 8px on narrow mobile, up to 20px on desktop
+    const pad = Math.max(8, Math.min(20, Math.floor(Math.min(this.w, this.h) * 0.025)));
+    const availW = Math.max(1, this.w - pad * 2);
+    const availH = Math.max(1, this.h - pad * 2);
+    const cell = Math.max(16, Math.floor(Math.min(availW / N, availH / N)));
     const board = cell * N;
-    return { cell, board, ox: (this.w - board) / 2, oy: (this.h - board) / 2 };
+    const ox = Math.floor((this.w - board) / 2);
+    const oy = Math.floor((this.h - board) / 2);
+    return { cell, board, ox, oy };
   }
 
   cellCenter(r: number, c: number) {
