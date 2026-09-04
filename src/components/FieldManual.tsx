@@ -544,6 +544,14 @@ export default function FieldManual({ firstWar, onClose }: { firstWar: boolean; 
                     <span><span className="text-fog font-semibold">Sound (M)</span> — mutes the war drums.</span>
                   </div>
                   <div className="flex items-center gap-2.5">
+                    <span className="icon-btn shrink-0">
+                      <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                        <path d="M3 8V5a2 2 0 0 1 2-2h3m8 0h3a2 2 0 0 1 2 2v3m0 8v3a2 2 0 0 1-2 2h-3m-8 0H5a2 2 0 0 1-2-2v-3" />
+                      </svg>
+                    </span>
+                    <span><span className="text-fog font-semibold">Zoom Screen (F)</span> — toggles full screen zoom so the board expands across your laptop.</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
                     <span className="w-11 h-11 shrink-0 grid place-items-center border border-[#1a4a54] text-flux">
                       <BladeIcon />
                     </span>

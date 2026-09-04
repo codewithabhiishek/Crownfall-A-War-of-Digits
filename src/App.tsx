@@ -73,6 +73,21 @@ function FlagIcon() {
   );
 }
 
+function FullscreenIcon({ isFullscreen }: { isFullscreen: boolean }) {
+  if (isFullscreen) {
+    return (
+      <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M3 8V5a2 2 0 0 1 2-2h3m8 0h3a2 2 0 0 1 2 2v3m0 8v3a2 2 0 0 1-2 2h-3m-8 0H5a2 2 0 0 1-2-2v-3" />
+    </svg>
+  );
+}
+
 // ── hud snapshot ──────────────────────────────────────────────────────────────
 interface Hud {
   turn: Side;
@@ -119,6 +134,11 @@ export default function App() {
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(false);
   const [muted, setMuted] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(() => {
+    if (typeof document === "undefined") return false;
+    const doc = document as any;
+    return !!(doc.fullscreenElement || doc.webkitFullscreenElement);
+  });
   const [manualOpen, setManualOpen] = useState(false);
   const [manualFirst, setManualFirst] = useState(true); // true until the player opens the manual once
   const [manualWasFirst, setManualWasFirst] = useState(false); // true only when THIS opening is the very first
@@ -643,9 +663,53 @@ export default function App() {
     });
   }, []);
 
+  useEffect(() => {
+    const onFsChange = () => {
+      const doc = document as any;
+      setIsFullscreen(!!(doc.fullscreenElement || doc.webkitFullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", onFsChange);
+    document.addEventListener("webkitfullscreenchange", onFsChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onFsChange);
+      document.removeEventListener("webkitfullscreenchange", onFsChange);
+    };
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    sfx.buttonClick();
+    const doc = document as any;
+    const docEl = document.documentElement as any;
+    const isFs = !!(doc.fullscreenElement || doc.webkitFullscreenElement);
+    if (!isFs) {
+      const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
+      if (req) {
+        req.call(docEl).then(() => {
+          toastMsg("FULLSCREEN ZOOM ENABLED · PRESS F TO EXIT");
+        }).catch(() => {
+          toastMsg("FULLSCREEN ZOOM ENABLED");
+        });
+      }
+    } else {
+      const exit = doc.exitFullscreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+      if (exit) {
+        exit.call(doc).then(() => {
+          toastMsg("FULLSCREEN ZOOM EXITED");
+        }).catch(() => {});
+      }
+    }
+  }, [toastMsg]);
+
   // keyboard
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.key === "f" || e.key === "F") {
+        if (!e.metaKey && !e.ctrlKey && !e.altKey) {
+          e.preventDefault();
+          toggleFullscreen();
+          return;
+        }
+      }
       if (manualOpen) return; // the manual owns Esc while open
       if (e.key === "Escape") {
         if (pausedRef.current) togglePause();
@@ -657,7 +721,7 @@ export default function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [manualOpen, selReserve, clearSel, togglePause, toggleMute, undo]);
+  }, [manualOpen, selReserve, clearSel, togglePause, toggleMute, undo, toggleFullscreen]);
 
   // ── derived ─────────────────────────────────────────────────────────────────
   const totalPlies = hud.plies[0] + hud.plies[1];
@@ -788,6 +852,13 @@ export default function App() {
               >
                 <BookIcon />
               </button>
+              <button
+                className="icon-btn"
+                onClick={toggleFullscreen}
+                title={isFullscreen ? "Exit zoom / fullscreen (F)" : "Zoom screen / fullscreen (F)"}
+              >
+                <FullscreenIcon isFullscreen={isFullscreen} />
+              </button>
               <button className="icon-btn" onClick={toggleMute} title="Toggle sound (M)">
                 <SoundIcon off={muted} />
               </button>
@@ -851,6 +922,13 @@ export default function App() {
               title="Field Manual — how to play"
             >
               <BookIcon />
+            </button>
+            <button
+              className="icon-btn"
+              onClick={toggleFullscreen}
+              title={isFullscreen ? "Exit zoom / fullscreen (F)" : "Zoom screen / fullscreen (F)"}
+            >
+              <FullscreenIcon isFullscreen={isFullscreen} />
             </button>
             <button className="icon-btn" onClick={toggleMute} title="Toggle sound (M)">
               <SoundIcon off={muted} />
@@ -1110,13 +1188,22 @@ export default function App() {
               <CrownIcon className="w-3.5 h-3.5 text-gold/80" />
               <span>Sudoku Law × Chess March</span>
             </div>
-            <button
-              className="icon-btn cursor-pointer"
-              onClick={toggleMute}
-              title={muted ? "Unmute sound (M)" : "Mute sound (M)"}
-            >
-              <SoundIcon off={muted} />
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                className="icon-btn cursor-pointer"
+                onClick={toggleFullscreen}
+                title={isFullscreen ? "Exit zoom / fullscreen (F)" : "Zoom screen / fullscreen (F)"}
+              >
+                <FullscreenIcon isFullscreen={isFullscreen} />
+              </button>
+              <button
+                className="icon-btn cursor-pointer"
+                onClick={toggleMute}
+                title={muted ? "Unmute sound (M)" : "Mute sound (M)"}
+              >
+                <SoundIcon off={muted} />
+              </button>
+            </div>
           </header>
 
           {/* Centered Hero & Game Mode Selection */}
@@ -1229,7 +1316,7 @@ export default function App() {
               </svg>
             </a>
             <div className="text-[8px] sm:text-[9px] uppercase tracking-[0.22em] text-[#345b63]">
-              touch / mouse to command · esc war council · M mute · U recall move
+              touch / mouse to command · F zoom screen · esc war council · M mute · U recall move
             </div>
           </footer>
         </div>
@@ -1247,6 +1334,13 @@ export default function App() {
               </button>
               <button className="btn-ghost px-6 py-2.5 text-xs sm:text-sm font-semibold tracking-[0.16em] flex items-center justify-center gap-2" onClick={() => startGame(diff)}>
                 <RestartIcon /> RESTART BATTLE
+              </button>
+              <button
+                className="btn-ghost px-6 py-2.5 text-xs sm:text-sm font-semibold tracking-[0.16em] flex items-center justify-center gap-2"
+                onClick={toggleFullscreen}
+              >
+                <FullscreenIcon isFullscreen={isFullscreen} />
+                <span>{isFullscreen ? "RESTORE WINDOW (F)" : "ZOOM SCREEN (F)"}</span>
               </button>
               <button
                 className="btn-ghost px-6 py-2.5 text-xs sm:text-sm font-semibold tracking-[0.16em] flex items-center justify-center gap-2"
