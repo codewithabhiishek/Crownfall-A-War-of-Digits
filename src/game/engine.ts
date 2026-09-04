@@ -386,10 +386,10 @@ export function aiChoose(state: GameState, diff: Difficulty): Action | null {
     if (!threats) return 0;
     const atts = threats.get(key(square.r, square.c));
     if (!atts || atts.length === 0) return 0;
-    if (myValue === 9) return -90;
-    const minAtt = Math.min(...atts);
-    if (minAtt >= myValue) return -(myValue * 10 + 10);
-    return -2;
+    if (myValue === 9) return -120;
+    const maxAtt = Math.max(...atts);
+    if (maxAtt >= myValue) return -(myValue * 10 + 10);
+    return 0;
   };
 
   let best: Action | null = null;
@@ -433,11 +433,11 @@ export function aiChoose(state: GameState, diff: Difficulty): Action | null {
     if (threats) {
       const curAtts = threats.get(key(p.r, p.c));
       if (curAtts && curAtts.length > 0) {
-        const inDanger = p.value === 9 || Math.min(...curAtts) >= p.value;
+        const inDanger = p.value === 9 || Math.max(...curAtts) >= p.value;
         if (inDanger) {
           const toAtts = threats.get(key(m.to.r, m.to.c));
           const safe =
-            !toAtts || toAtts.length === 0 || (p.value !== 9 && Math.min(...toAtts) < p.value);
+            !toAtts || toAtts.length === 0 || (p.value !== 9 && Math.max(...toAtts) < p.value);
           if (safe && !m.capture) s += p.value * 3.5 + (p.value === 9 ? 60 : 0);
         }
       }

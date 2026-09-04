@@ -327,10 +327,15 @@ export default function App() {
       }
       setAiThinking(false);
       maybeWarn(g);
-      sfx.turnYou();
-      setHint(playerHint(g));
+      if (g.turn === 1) {
+        toastMsg("YOU HAVE NO LEGAL MOVES — THE CRIMSON COURT ADVANCES");
+        scheduleAI();
+      } else {
+        sfx.turnYou();
+        setHint(playerHint(g));
+      }
     }, 750 + Math.random() * 450);
-  }, [clearSel, finish, fxFor, maybeWarn, playerHint, refresh]);
+  }, [clearSel, finish, fxFor, maybeWarn, playerHint, refresh, toastMsg]);
 
   // opening the manual holds the battle (clock + enemy plotting), and resumes it after
   const manualPrevPaused = useRef(false);
@@ -529,22 +534,7 @@ export default function App() {
         return;
       }
 
-      if (pc && pc.side === 1) {
-        sfx.invalid();
-        toastMsg("THAT PIECE SERVES THE CRIMSON COURT — CAPTURE IT INSTEAD");
-        return;
-      }
-
-      if (pc && pc.side === 0) {
-        if (crownForced) {
-          sfx.invalid();
-          toastMsg("DECREE — THE CROWN MUST TAKE THE FIELD FIRST");
-          return;
-        }
-        selectPiece(pc);
-        return;
-      }
-
+      // 1. If a friendly piece is already selected, check if clicked cell is a valid move or capture target!
       if (selPieceRef.current != null) {
         const p = g.pieces.find((x) => x.id === selPieceRef.current);
         if (p) {
@@ -555,6 +545,29 @@ export default function App() {
           }
         }
       }
+
+      // 2. If clicking own piece, select it
+      if (pc && pc.side === 0) {
+        if (crownForced) {
+          sfx.invalid();
+          toastMsg("DECREE — THE CROWN MUST TAKE THE FIELD FIRST");
+          return;
+        }
+        selectPiece(pc);
+        return;
+      }
+
+      // 3. If clicking enemy piece (that cannot be captured with current selection)
+      if (pc && pc.side === 1) {
+        sfx.invalid();
+        toastMsg(
+          selPieceRef.current != null
+            ? "YOUR SELECTED UNIT CANNOT CAPTURE THAT ENEMY"
+            : "THAT PIECE SERVES THE CRIMSON COURT — SELECT YOUR UNIT TO ATTACK",
+        );
+        return;
+      }
+
       clearSel();
     },
     [clearSel, doDeploy, doMove, selReserve, selectPiece, toastMsg],
