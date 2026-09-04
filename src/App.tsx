@@ -769,7 +769,7 @@ export default function App() {
           "group relative flex flex-col items-center justify-center gap-0.5 border rounded-[3px] transition-all duration-150 select-none",
           mode === "mobile"
             ? "flex-1 min-w-0 h-[48px] px-0.5 py-1"
-            : "py-2 px-1 min-h-[68px]",
+            : "py-1.5 px-1 min-h-[54px] lg:min-h-[58px]",
           selected
             ? "border-gold bg-gold/25 text-gold-2 shadow-[0_0_16px_rgba(255,201,60,0.45)] -translate-y-0.5 z-10"
             : isCrownUnit && avail && !dimByForce
@@ -871,16 +871,22 @@ export default function App() {
           <div className="flex sm:flex-1 items-center justify-between sm:justify-center gap-2 sm:gap-4 min-w-0 pb-1.5 sm:pb-0 sm:h-14">
             <div
               className={[
-                "flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 border rounded-[3px] text-[10px] sm:text-xs font-bold uppercase tracking-[0.14em] sm:tracking-[0.2em] transition-colors duration-300 shrink-0",
+                "flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 border rounded-[3px] text-xs sm:text-sm font-display font-black uppercase tracking-[0.2em] transition-all duration-200 shrink-0",
                 over
-                  ? "border-[#2a5a63] text-mist"
+                  ? "border-[#2a5a63] text-mist bg-[#07212a]"
                   : paused
                     ? "border-flux/60 text-flux bg-flux/10"
                     : aiThinking
-                      ? "border-blood/60 text-blood-2 bg-blood/10"
-                      : "border-gold/60 text-gold-2 bg-gold/10",
+                      ? "border-blood text-blood-2 bg-blood/15 shadow-[0_0_12px_rgba(255,71,87,0.25)]"
+                      : "border-gold text-gold-2 bg-gold/20 shadow-[0_0_14px_rgba(255,201,60,0.3)]",
               ].join(" ")}
             >
+              {!over && !paused && !aiThinking && (
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-gold"></span>
+                </span>
+              )}
               {over ? (
                 <><span className="hidden sm:inline">Battle ended</span><span className="sm:hidden">Ended</span></>
               ) : paused ? (
@@ -896,7 +902,7 @@ export default function App() {
                   </span>
                 </>
               ) : (
-                <><span className="hidden sm:inline">Your move</span><span className="sm:hidden">You</span></>
+                <><span className="hidden sm:inline">YOUR MOVE</span><span className="sm:hidden">YOUR MOVE</span></>
               )}
             </div>
             {/* compact score — phones & tablets, where the side panels are hidden */}
@@ -943,7 +949,7 @@ export default function App() {
       {/* battle area — hidden during menu */}
       <div className={`flex-1 flex min-h-0 ${!inBattle ? "hidden" : ""}`}>
         {/* player panel (Tablet & Desktop: md:flex) */}
-        <aside className="hidden md:flex w-52 lg:w-60 xl:w-64 shrink-0 flex-col gap-2.5 p-2.5 lg:p-3 border-r border-[#123f4a] bg-[#051920]/70 overflow-y-auto">
+        <aside className="hidden md:flex w-44 lg:w-48 xl:w-52 shrink-0 flex-col gap-2 p-2 lg:p-2.5 border-r border-[#123f4a] bg-[#051920]/70 overflow-y-auto">
           <div className="panel panel-hover p-2.5 lg:p-3">
             <div className="flex items-baseline justify-between">
               <span className="font-display font-bold text-gold text-xs lg:text-sm tracking-[0.18em]">YOUR WARBAND</span>
@@ -968,8 +974,10 @@ export default function App() {
               </span>
             </div>
           </div>
-          <div className="panel-flat p-2.5 lg:p-3">
-            <div className="text-[10px] uppercase tracking-[0.22em] text-blood-2 font-bold mb-1.5">Foes slain</div>
+          <div className={`panel-flat transition-all ${hud.captures[0].length === 0 ? "px-2.5 py-1.5 flex items-center justify-between" : "p-2.5"}`}>
+            <div className={`text-[10px] uppercase tracking-[0.2em] text-blood-2 font-bold ${hud.captures[0].length === 0 ? "" : "mb-1.5"}`}>
+              Foes slain
+            </div>
             {captureTokens(hud.captures[0], "blood")}
           </div>
         </aside>
@@ -1018,7 +1026,7 @@ export default function App() {
             {toast && (
               <div
                 key={toast.id}
-                className="toast-in absolute top-3 left-1/2 z-30 panel-flat px-4 sm:px-5 py-2 font-display font-bold text-[11px] sm:text-sm tracking-[0.16em] sm:tracking-[0.22em] text-gold-2 text-center max-w-[92vw]"
+                className="toast-in pointer-events-none absolute top-2.5 sm:top-3 left-1/2 z-30 px-3 sm:px-4 py-1.5 rounded-[3px] border border-gold/60 bg-[#07242c]/95 backdrop-blur-md shadow-[0_4px_16px_rgba(0,0,0,0.6),0_0_12px_rgba(255,201,60,0.15)] font-display font-bold text-[10px] sm:text-xs tracking-[0.16em] sm:tracking-[0.2em] text-gold-2 text-center max-w-[90vw] whitespace-nowrap"
               >
                 {toast.msg}
               </div>
@@ -1044,7 +1052,7 @@ export default function App() {
         </main>
 
         {/* enemy panel (Tablet & Desktop: md:flex) */}
-        <aside className="hidden md:flex w-52 lg:w-60 xl:w-64 shrink-0 flex-col gap-2.5 p-2.5 lg:p-3 border-l border-[#123f4a] bg-[#0d070b]/40 overflow-y-auto">
+        <aside className="hidden md:flex w-44 lg:w-48 xl:w-52 shrink-0 flex-col gap-2 p-2 lg:p-2.5 border-l border-[#123f4a] bg-[#0d070b]/40 overflow-y-auto">
           <div className="panel panel-hover p-2.5 lg:p-3">
             <div className="flex items-baseline justify-between">
               <span className="font-display font-bold text-blood text-xs lg:text-sm tracking-[0.14em]">CRIMSON COURT</span>
@@ -1057,7 +1065,7 @@ export default function App() {
                 hud.reserves[1].includes(v) ? (
                   <span
                     key={v}
-                    className={`w-7 h-7 sm:w-8 sm:h-8 grid place-items-center text-xs sm:text-sm font-display font-bold border ${
+                    className={`w-6 h-6 lg:w-7 lg:h-7 grid place-items-center text-xs font-display font-bold border ${
                       v === 9 ? "text-gold border-gold/70 bg-gold/15" : "text-blood-2 border-blood/40 bg-blood/10"
                     }`}
                   >
@@ -1083,8 +1091,10 @@ export default function App() {
               </span>
             </div>
           </div>
-          <div className="panel-flat p-2.5 lg:p-3">
-            <div className="text-[10px] uppercase tracking-[0.22em] text-gold-2 font-bold mb-1.5">Your fallen</div>
+          <div className={`panel-flat transition-all ${hud.captures[1].length === 0 ? "px-2.5 py-1.5 flex items-center justify-between" : "p-2.5"}`}>
+            <div className={`text-[10px] uppercase tracking-[0.2em] text-gold-2 font-bold ${hud.captures[1].length === 0 ? "" : "mb-1.5"}`}>
+              Your fallen
+            </div>
             {captureTokens(hud.captures[1], "gold")}
           </div>
           {hud.mustCrown[1] && !over && (
@@ -1117,20 +1127,17 @@ export default function App() {
             </p>
           </div>
 
-          {/* Center/Right Abhiishek Credit with Motion in Battle */}
+          {/* Subtle creator signature during battle */}
           <a
             href="https://abhiishek.is-a.dev/"
             target="_blank"
             rel="noopener noreferrer"
-            title="Visit Abhishek's portfolio (abhiishek.is-a.dev)"
-            className="author-badge shrink-0 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-gold/50 shadow-[0_0_12px_rgba(255,201,60,0.25)] hover:border-gold hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            title="Built by Abhishek (abhiishek.is-a.dev)"
+            className="shrink-0 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-[#173e46] bg-[#051921]/60 text-mist/60 hover:text-gold hover:border-gold/40 hover:bg-gold/10 transition-all cursor-pointer"
           >
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-gold"></span>
-            </span>
-            <span className="text-[8.5px] sm:text-[9.5px] font-display font-black uppercase tracking-[0.16em] text-gold-2 drop-shadow-[0_0_6px_rgba(255,201,60,0.6)]">
-              ⚔️ Built by Abhishek
+            <span className="w-1.5 h-1.5 rounded-full bg-gold/70" />
+            <span className="text-[8.5px] sm:text-[9px] font-display font-medium uppercase tracking-[0.14em]">
+              by Abhishek
             </span>
           </a>
 

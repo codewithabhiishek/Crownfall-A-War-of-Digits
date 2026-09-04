@@ -114,12 +114,12 @@ export class Renderer {
     this.canvas.style.height = `${this.h}px`;
   }
 
-  // ── layout ──────────────────────────────────────────────────────────────────
   layout() {
-    // Dynamic responsive padding: 8px on narrow mobile, up to 20px on desktop
-    const pad = Math.max(8, Math.min(20, Math.floor(Math.min(this.w, this.h) * 0.025)));
-    const availW = Math.max(1, this.w - pad * 2);
-    const availH = Math.max(1, this.h - pad * 2);
+    // Dynamic responsive padding: generous breathing room from top HUD and bottom bar
+    const padX = Math.max(8, Math.min(22, Math.floor(this.w * 0.025)));
+    const padY = Math.max(14, Math.min(28, Math.floor(this.h * 0.04)));
+    const availW = Math.max(1, this.w - padX * 2);
+    const availH = Math.max(1, this.h - padY * 2);
     const cell = Math.max(16, Math.floor(Math.min(availW / N, availH / N)));
     const board = cell * N;
     const ox = Math.floor((this.w - board) / 2);
