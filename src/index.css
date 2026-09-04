@@ -346,3 +346,43 @@ body {
     -webkit-tap-highlight-color: transparent;
   }
 }
+
+/* author badge glowing motion */
+@keyframes shimmer-gold {
+  0% {
+    background-position: -200% 0;
+    box-shadow: 0 0 10px rgba(255, 201, 60, 0.25), inset 0 0 6px rgba(255, 201, 60, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(255, 201, 60, 0.6), inset 0 0 12px rgba(255, 201, 60, 0.3);
+  }
+  100% {
+    background-position: 200% 0;
+    box-shadow: 0 0 10px rgba(255, 201, 60, 0.25), inset 0 0 6px rgba(255, 201, 60, 0.1);
+  }
+}
+
+@keyframes author-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+.author-badge {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 201, 60, 0.1) 0%,
+    rgba(255, 224, 130, 0.3) 45%,
+    rgba(255, 201, 60, 0.45) 50%,
+    rgba(255, 224, 130, 0.3) 55%,
+    rgba(255, 201, 60, 0.1) 100%
+  );
+  background-size: 250% 100%;
+  animation:
+    shimmer-gold 3.2s ease-in-out infinite,
+    author-float 2.8s ease-in-out infinite;
+}
+

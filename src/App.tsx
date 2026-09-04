@@ -1046,22 +1046,36 @@ export default function App() {
 
       {/* guidance strip */}
       <footer
-        className="z-20 shrink-0 flex items-center gap-2.5 px-3 sm:px-4 py-2 min-h-[40px] border-t border-[#123f4a] bg-[#061d25]/85"
-        style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
+        className="z-20 shrink-0 flex items-center justify-between gap-2 px-3 sm:px-4 py-1.5 min-h-[36px] border-t border-[#123f4a] bg-[#061d25]/90 backdrop-blur-sm"
+        style={{ paddingBottom: "max(0.35rem, env(safe-area-inset-bottom))" }}
       >
-        <span
-          className={`w-1.5 h-1.5 rotate-45 shrink-0 hidden sm:block ${
-            selInfo ? "bg-gold shadow-[0_0_8px_rgba(255,201,60,0.8)]" : "bg-flux shadow-[0_0_8px_rgba(53,240,255,0.7)]"
-          }`}
-        />
-        <p
-          key={selInfo ?? hint}
-          className={`rise-in flex-1 text-[11px] sm:text-xs tracking-wide leading-snug text-center ${
-            selInfo ? "text-gold-2" : "text-mist"
-          }`}
-        >
-          {inBattle ? (selInfo ?? hint) : "Forge digits into armies · bind them by the Law of Rows · hunt the Crown."}
-        </p>
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <span
+            className={`w-1.5 h-1.5 rotate-45 shrink-0 hidden sm:block ${
+              selInfo ? "bg-gold shadow-[0_0_8px_rgba(255,201,60,0.8)]" : "bg-flux shadow-[0_0_8px_rgba(53,240,255,0.7)]"
+            }`}
+          />
+          <p
+            key={selInfo ?? hint}
+            className={`rise-in text-[10px] sm:text-xs tracking-wide leading-snug truncate ${
+              selInfo ? "text-gold-2" : "text-mist"
+            }`}
+          >
+            {inBattle ? (selInfo ?? hint) : "Forge digits into armies · bind them by the Law of Rows · hunt the Crown."}
+          </p>
+        </div>
+
+        {/* Center/Right Abhiishek Credit with Motion */}
+        <div className="author-badge shrink-0 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-gold/50 shadow-[0_0_12px_rgba(255,201,60,0.25)]">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-gold"></span>
+          </span>
+          <span className="text-[9px] sm:text-[10px] font-display font-black uppercase tracking-[0.16em] text-gold-2 drop-shadow-[0_0_6px_rgba(255,201,60,0.6)]">
+            ⚔️ Built by Abhiishek
+          </span>
+        </div>
+
         {inBattle && hud.mustCrown[0] && hud.turn === 0 && !over && (
           <span className="attn-badge shrink-0 font-display font-bold text-[9px] sm:text-[10px] tracking-[0.18em] border border-blood/60 bg-blood/15 px-2 py-1">
             <span className="hidden sm:inline">DECREE — MUSTER THE CROWN</span>
@@ -1090,15 +1104,15 @@ export default function App() {
       {/* ── MENU ── */}
       {screen === "menu" && (
         <div
-          className="overlay-in absolute inset-0 z-40 bg-gradient-to-br from-[#04151b]/95 via-[#04151b]/85 to-[#04151b]/95 overflow-y-auto"
+          className="overlay-in absolute inset-0 z-40 bg-gradient-to-br from-[#04151b]/95 via-[#04151b]/85 to-[#04151b]/95 overflow-y-auto lg:overflow-hidden"
           style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
         >
-          <div className="min-h-full max-w-6xl mx-auto px-4 sm:px-8 py-5 sm:py-8 flex flex-col justify-center">
+          <div className="h-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-4 lg:py-3 flex flex-col justify-between">
             {/* Mobile Tab Switcher (< lg) */}
-            <div className="lg:hidden flex items-center justify-center gap-2 mb-4 shrink-0">
+            <div className="lg:hidden flex items-center justify-center gap-2 mb-2 shrink-0">
               <button
                 onClick={() => setMenuTab("brief")}
-                className={`flex-1 max-w-[200px] py-2 px-3 text-xs font-display font-bold uppercase tracking-[0.14em] border transition-all duration-150 ${
+                className={`flex-1 max-w-[200px] py-1.5 px-3 text-xs font-display font-bold uppercase tracking-[0.14em] border transition-all duration-150 ${
                   menuTab === "brief"
                     ? "border-gold text-gold-2 bg-gold/15 shadow-[0_0_12px_rgba(255,201,60,0.25)]"
                     : "border-[#1a4a54] text-mist hover:text-fog bg-[#0a2b34]/40"
@@ -1109,7 +1123,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setMenuTab("marches")}
-                className={`flex-1 max-w-[200px] py-2 px-3 text-xs font-display font-bold uppercase tracking-[0.14em] border transition-all duration-150 ${
+                className={`flex-1 max-w-[200px] py-1.5 px-3 text-xs font-display font-bold uppercase tracking-[0.14em] border transition-all duration-150 ${
                   menuTab === "marches"
                     ? "border-gold text-gold-2 bg-gold/15 shadow-[0_0_12px_rgba(255,201,60,0.25)]"
                     : "border-[#1a4a54] text-mist hover:text-fog bg-[#0a2b34]/40"
@@ -1120,53 +1134,54 @@ export default function App() {
               </button>
             </div>
 
-            <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-6 lg:gap-12 items-center">
+            <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-4 lg:gap-8 items-center flex-1 min-h-0">
               {/* Left Column: Briefing, Rules & Actions */}
               <div className={`rise-in ${menuTab !== "brief" ? "hidden lg:block" : "block"}`}>
-                <div className="flex items-center gap-2 text-flux text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.3em]">
-                  <span className="w-6 sm:w-8 h-px bg-flux/60" />
+                <div className="flex items-center gap-2 text-flux text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.3em]">
+                  <span className="w-5 sm:w-7 h-px bg-flux/60" />
                   sudoku law × chess march
                 </div>
                 <div className="relative">
-                  <CrownIcon className="absolute -left-9 top-0 w-7 h-7 text-gold/25 float-slow hidden sm:block" />
-                  <CrownIcon className="absolute -right-2 -bottom-2 w-5 h-5 text-blood/30 float-slower hidden sm:block" />
-                  <h1 className="title-carved title-glow font-black text-4xl sm:text-7xl xl:text-8xl leading-[0.95] mt-2 sm:mt-4">
+                  <CrownIcon className="absolute -left-8 top-0 w-6 h-6 text-gold/25 float-slow hidden sm:block" />
+                  <CrownIcon className="absolute -right-2 -bottom-1 w-5 h-5 text-blood/30 float-slower hidden sm:block" />
+                  <h1 className="title-carved title-glow font-black text-3xl sm:text-5xl lg:text-5xl xl:text-6xl leading-[0.92] mt-1 lg:mt-2">
                     CROWN
                     <br />
                     FALL
                   </h1>
                 </div>
-                <p className="text-mist text-xs sm:text-base max-w-md mt-3 sm:mt-5 leading-relaxed">
+                <p className="text-mist text-xs lg:text-xs xl:text-sm max-w-lg mt-1.5 lg:mt-2 leading-snug">
                   Muster a warband of digits onto the 7×7 field. Every digit marches by its own law,
                   the <span className="text-fog font-semibold">Law of Rows</span> forbids equal digits
                   sharing a line — and any blade may slay{" "}
                   <span className="text-blood-2 font-semibold">the Crown</span>.
                 </p>
 
-                <ol className="mt-4 sm:mt-6 space-y-2 max-w-md">
+                {/* 2x2 Compact Rules Grid */}
+                <ol className="mt-2 lg:mt-3 grid grid-cols-1 sm:grid-cols-2 gap-1.5 lg:gap-2 max-w-lg">
                   {[
-                    ["01", "THE MUSTER", "Deploy a digit from reserve, or march a piece on the field."],
-                    ["02", "THE LAW OF ROWS", "No two equal digits may share a row or column. The Crown is exempt — must enter by turn 5."],
-                    ["03", "THE SLAYING", "A piece captures equals and lesser values. Any piece may slay the Crown."],
-                    ["04", "THE DECREE", "60 moves total. When spent, greater war-material wins. Slay the enemy Crown to win instantly."],
+                    ["01", "THE MUSTER", "Deploy a digit from reserve, or march a piece on field."],
+                    ["02", "LAW OF ROWS", "No two equal digits share a row or column (Crown exempt)."],
+                    ["03", "THE SLAYING", "Captures equals & lessers. Any piece slays the Crown."],
+                    ["04", "THE DECREE", "60 moves total. Capture enemy Crown to win instantly."],
                   ].map(([n, t, d], i) => (
                     <li
                       key={n}
-                      className="rise-in flex gap-2.5 sm:gap-3 items-start panel-flat px-3 py-2 transition-all duration-150 hover:translate-x-1 hover:border-gold/40"
-                      style={{ animationDelay: `${0.2 + i * 0.08}s` }}
+                      className="rise-in flex gap-2 items-start panel-flat px-2.5 py-1.5 transition-all duration-150 hover:translate-x-0.5 hover:border-gold/40"
+                      style={{ animationDelay: `${0.15 + i * 0.06}s` }}
                     >
-                      <span className="font-display font-black text-gold text-base sm:text-lg leading-none mt-0.5">{n}</span>
-                      <span className="text-xs leading-relaxed">
-                        <span className="font-display font-bold text-fog tracking-[0.14em] text-[10px] sm:text-[11px] uppercase block mb-0.5">{t}</span>
-                        <span className="text-mist text-[11px] sm:text-xs">{d}</span>
+                      <span className="font-display font-black text-gold text-sm sm:text-base leading-none mt-0.5 shrink-0">{n}</span>
+                      <span className="text-xs leading-tight min-w-0">
+                        <span className="font-display font-bold text-fog tracking-[0.1em] text-[10px] uppercase block truncate">{t}</span>
+                        <span className="text-mist text-[10px] leading-tight block">{d}</span>
                       </span>
                     </li>
                   ))}
                 </ol>
 
-                <div className="mt-5 sm:mt-7">
-                  <div className="text-[10px] uppercase tracking-[0.25em] text-mist mb-1.5">Choose your foe</div>
-                  <div className="flex gap-2 flex-wrap">
+                <div className="mt-2.5 lg:mt-3.5">
+                  <div className="text-[9px] uppercase tracking-[0.25em] text-mist mb-1">Choose your foe</div>
+                  <div className="flex gap-1.5 sm:gap-2 flex-wrap">
                     {DIFFS.map((d) => (
                       <button
                         key={d.id}
@@ -1176,65 +1191,64 @@ export default function App() {
                           sfx.select();
                         }}
                         className={[
-                          "px-3 sm:px-4 py-2 border transition-all duration-150 hover:-translate-y-0.5 active:scale-95",
-                          diff === d.id ? "btn-gold border-gold" : "btn-ghost",
+                          "px-2.5 sm:px-3 py-1 sm:py-1.5 border transition-all duration-150 hover:-translate-y-0.5 active:scale-95",
+                          diff === d.id ? "btn-gold border-gold shadow-[0_0_10px_rgba(255,201,60,0.3)]" : "btn-ghost",
                         ].join(" ")}
-                        style={{ clipPath: "polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)" }}
+                        style={{ clipPath: "polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)" }}
                       >
-                        <span className="font-display font-bold text-xs sm:text-sm tracking-[0.14em] sm:tracking-[0.16em] block leading-none">{d.name}</span>
-                        <span className={`text-[9px] sm:text-[10px] ${diff === d.id ? "text-[#5c3c00]" : "text-mist"}`}>{d.blurb}</span>
+                        <span className="font-display font-bold text-xs sm:text-sm tracking-[0.12em] block leading-none">{d.name}</span>
+                        <span className={`text-[8px] sm:text-[9px] ${diff === d.id ? "text-[#5c3c00]" : "text-mist"}`}>{d.blurb}</span>
                       </button>
                     ))}
                   </div>
-                  <div className="mt-4 sm:mt-5 flex flex-wrap items-center gap-2.5 sm:gap-3">
+                  <div className="mt-2.5 lg:mt-3.5 flex flex-wrap items-center gap-2 sm:gap-3">
                     <button
                       onClick={() => startGame(diff)}
-                      className="btn-gold btn-shine crown-bob px-8 sm:px-12 py-3 sm:py-3.5 text-lg sm:text-xl font-black tracking-[0.18em] sm:tracking-[0.2em]"
+                      className="btn-gold btn-shine crown-bob px-7 sm:px-10 py-2 sm:py-2.5 text-base sm:text-lg font-black tracking-[0.18em]"
                     >
                       TO BATTLE
                     </button>
                     <button
                       onClick={() => openManual(false)}
-                      className="btn-ghost px-5 sm:px-6 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold tracking-[0.16em] sm:tracking-[0.18em] flex items-center gap-2 hover:-translate-y-0.5 active:scale-95"
+                      className="btn-ghost px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold tracking-[0.14em] flex items-center gap-1.5 hover:-translate-y-0.5 active:scale-95"
                     >
-                      <BookIcon className="w-4 h-4" />
+                      <BookIcon className="w-3.5 h-3.5" />
                       <span>FIELD MANUAL</span>
-                      <span className="text-[9px] uppercase tracking-[0.14em] opacity-70 hidden sm:inline">rules & tactics</span>
+                      <span className="text-[9px] uppercase tracking-[0.12em] opacity-70 hidden sm:inline">rules</span>
                     </button>
                   </div>
-                  <p className="mt-2 text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-[#5f8b8f]">
+                  <p className="mt-1.5 text-[8px] sm:text-[9px] uppercase tracking-[0.18em] text-[#5f8b8f]">
                     New commander? The manual opens automatically before your first war.
                   </p>
                 </div>
               </div>
 
               {/* Right Column: March Table */}
-              <div className={`panel p-3.5 sm:p-5 rise-in ${menuTab !== "marches" ? "hidden lg:block" : "block"}`} style={{ animationDelay: "0.1s" }}>
-                <div className="flex items-center justify-between mb-2.5 sm:mb-3">
-                  <span className="font-display font-bold text-fog tracking-[0.2em] sm:tracking-[0.24em] text-xs sm:text-sm">THE MARCH TABLE</span>
-                  <CrownIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
+              <div className={`panel p-2.5 sm:p-4 rise-in ${menuTab !== "marches" ? "hidden lg:block" : "block"}`} style={{ animationDelay: "0.1s" }}>
+                <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+                  <span className="font-display font-bold text-fog tracking-[0.18em] text-xs sm:text-sm">THE MARCH TABLE</span>
+                  <CrownIcon className="w-4 h-4 text-gold" />
                 </div>
-                <div className="space-y-1 sm:space-y-1.5">
+                <div className="space-y-0.5 sm:space-y-1">
                   {RESERVE_ORDER.map((v) => (
                     <div
                       key={v}
-                      className="flex items-center gap-2 sm:gap-3 px-2 sm:px-2.5 py-1 sm:py-1.5 bg-[#0a2b34]/60 border border-[#1a4a54]/50 transition-all duration-150 hover:bg-[#0e3540]/70 hover:border-flux/40 hover:translate-x-1"
+                      className="flex items-center gap-2 sm:gap-2.5 px-2 py-0.5 sm:py-1 bg-[#0a2b34]/60 border border-[#1a4a54]/50 transition-all duration-150 hover:bg-[#0e3540]/70 hover:border-flux/40 hover:translate-x-1"
                     >
-                      <span className={`w-7 h-7 sm:w-8 sm:h-8 grid place-items-center font-display font-black text-sm sm:text-base border shrink-0 ${v === 9 ? "text-gold-2 border-gold/60 bg-gold/10" : "text-gold border-gold/30 bg-[#0e3540]"}`}>
+                      <span className={`w-6 h-6 sm:w-7 sm:h-7 grid place-items-center font-display font-black text-xs sm:text-sm border shrink-0 ${v === 9 ? "text-gold-2 border-gold/60 bg-gold/10" : "text-gold border-gold/30 bg-[#0e3540]"}`}>
                         {v}
                       </span>
-                      <span className="w-16 sm:w-20 font-display font-bold text-[10px] sm:text-[11px] tracking-[0.12em] sm:tracking-[0.14em] text-fog uppercase shrink-0">{PIECE_NAMES[v]}</span>
-                      <MarchGlyph v={v} className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-flux shrink-0" />
-                      <span className="text-[10px] sm:text-[11px] text-mist leading-tight min-w-0 truncate sm:whitespace-normal">{MARCH_TEXT[v]}</span>
+                      <span className="w-16 sm:w-18 font-display font-bold text-[10px] sm:text-[11px] tracking-[0.1em] text-fog uppercase shrink-0">{PIECE_NAMES[v]}</span>
+                      <MarchGlyph v={v} className="w-3.5 h-3.5 text-flux shrink-0" />
+                      <span className="text-[9px] sm:text-[10px] text-mist leading-tight min-w-0 truncate sm:whitespace-normal">{MARCH_TEXT[v]}</span>
                     </div>
                   ))}
                 </div>
-                <p className="text-[9px] sm:text-[10px] text-[#5f8b8f] mt-2.5 sm:mt-3 leading-relaxed">
-                  Slides are blocked by any piece; the Knight leaps over all. Gold is your house,
-                  crimson the enemy court.
+                <p className="text-[8px] sm:text-[9px] text-[#5f8b8f] mt-1.5 sm:mt-2 leading-relaxed">
+                  Slides are blocked by any piece; Knight leaps. Gold is your house, crimson the foe.
                 </p>
                 {/* Quick button to return to briefing on mobile */}
-                <div className="lg:hidden mt-3 pt-2 border-t border-[#1a4a54]/40 flex justify-end">
+                <div className="lg:hidden mt-2 pt-1.5 border-t border-[#1a4a54]/40 flex justify-end">
                   <button
                     onClick={() => setMenuTab("brief")}
                     className="text-xs font-display font-bold text-gold hover:underline uppercase tracking-wider"
@@ -1245,8 +1259,20 @@ export default function App() {
               </div>
             </div>
 
-            <div className="mt-4 sm:mt-6 text-[9px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.26em] text-[#3f6a70] text-center">
-              touch / mouse to command · esc war council · M mute · U recall move
+            {/* Bottom Middle: Built by Abhiishek with Motion + Controls hint */}
+            <div className="mt-2 pt-2 border-t border-[#123f4a]/50 flex flex-col items-center justify-center gap-1 shrink-0">
+              <div className="author-badge inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-gold/60 shadow-[0_0_16px_rgba(255,201,60,0.35)] hover:scale-105 transition-transform duration-200">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-gold"></span>
+                </span>
+                <span className="text-[11px] sm:text-xs font-display font-black uppercase tracking-[0.2em] text-gold-2 drop-shadow-[0_0_8px_rgba(255,201,60,0.7)]">
+                  ⚔️ Built by Abhiishek
+                </span>
+              </div>
+              <div className="text-[8px] sm:text-[9px] uppercase tracking-[0.22em] text-[#3f6a70] text-center">
+                touch / mouse to command · esc war council · M mute · U recall move
+              </div>
             </div>
           </div>
         </div>
