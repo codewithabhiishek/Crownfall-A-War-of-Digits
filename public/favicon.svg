@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a252f" />
+      <stop offset="100%" stop-color="#031117" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffe680" />
+      <stop offset="50%" stop-color="#ffc93c" />
+      <stop offset="100%" stop-color="#c9911e" />
+    </linearGradient>
+    <filter id="goldGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#ffc93c" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- Background Shield/Pill -->
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#bgGrad)" stroke="#c9911e" stroke-width="2" stroke-opacity="0.6" />
+  
+  <!-- Subtle Inner Border -->
+  <rect x="5" y="5" width="54" height="54" rx="11" fill="none" stroke="#234e5a" stroke-width="1" stroke-opacity="0.5" />
+
+  <!-- Crown Icon scaled from 24x24 path to 42x42 positioned center -->
+  <g transform="translate(11, 10) scale(1.75)" filter="url(#goldGlow)">
+    <path
+      d="M3 19h18v2H3zM2.5 7.5 6 10.8 12 4l6 6.8 3.5-3.3L19.6 17H4.4L2.5 7.5z"
+      fill="url(#goldGrad)"
+    />
+  </g>
+</svg>
