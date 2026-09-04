@@ -385,7 +385,6 @@ export default function App() {
       refresh();
       setHint("Step 1: tap any number in your gold tray, then tap a glowing square to place it.");
       toastMsg("THE WAR BEGINS — YOUR MOVE");
-      sfx.turnYou();
     },
     [clearSel, manualFirst, refresh, toastMsg],
   );

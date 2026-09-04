@@ -105,18 +105,17 @@ export const sfx = {
   },
   foeSelect(diff: string) {
     if (diff === "squire") {
-      // light, energetic brass blip
-      tone(520, 0.06, "triangle", 0.45, 680);
-      tone(820, 0.04, "sine", 0.25, undefined, 0.02);
+      // light wooden tap + soft chime
+      noise(0.03, 0.12, 1400);
+      tone(440, 0.06, "sine", 0.28, 550);
     } else if (diff === "knight") {
-      // sharp steel sword clink & shield tap
-      noise(0.03, 0.14, 3600);
-      tone(880, 0.07, "triangle", 0.5, 1120);
-      tone(1320, 0.05, "sine", 0.28);
+      // crisp tactile piece placement
+      noise(0.03, 0.15, 2000);
+      tone(587, 0.06, "triangle", 0.3, 440);
     } else {
-      // heavy, ominous warlord war-hammer strike
-      tone(150, 0.2, "sawtooth", 0.65, 70);
-      tone(220, 0.14, "triangle", 0.45, 110, 0.03);
+      // deep solid hardwood piece thud
+      noise(0.04, 0.15, 900);
+      tone(160, 0.12, "triangle", 0.4, 75);
     }
   },
   chipSelect(v: number) {
@@ -133,13 +132,15 @@ export const sfx = {
     }
   },
   battleStart() {
-    // grand war gong + rising brass trumpet fanfare
-    tone(130, 0.38, "triangle", 0.7, 50);
-    tone(80, 0.48, "sawtooth", 0.45, 40, 0.02);
-    tone(440, 0.15, "triangle", 0.45, undefined, 0.04);
-    tone(554, 0.18, "triangle", 0.5, undefined, 0.11);
-    tone(659, 0.22, "triangle", 0.55, undefined, 0.17);
-    tone(880, 0.38, "sawtooth", 0.62, 920, 0.24);
+    // Satisfying tactile board game start: wooden chess piece placement on hardwood
+    // 1. Initial crisp wooden contact
+    noise(0.03, 0.15, 1200);
+    tone(200, 0.06, "triangle", 0.32, 110);
+    // 2. Light secondary settling tap
+    noise(0.025, 0.1, 1600, 0.035);
+    tone(380, 0.06, "sine", 0.2, 300, 0.035);
+    // 3. Gentle warm wood resonance
+    tone(523, 0.09, "sine", 0.15, 460, 0.07);
   },
   place() {
     tone(190, 0.14, "triangle", 0.9, 90);
