@@ -700,7 +700,7 @@ export default function App() {
         disabled={!inBattle || !!over || paused || !avail || hud.turn !== 0 || dimByForce}
         title={avail ? `${PIECE_NAMES[v]} — ${MARCH_TEXT[v]}` : `${PIECE_NAMES[v]} — already deployed`}
         className={[
-          "group relative flex flex-col items-center justify-center gap-0.5 border transition-all duration-150 select-none",
+          "group relative flex flex-col items-center justify-center gap-0.5 border rounded-[3px] transition-all duration-150 select-none",
           mode === "mobile"
             ? "flex-1 min-w-0 h-[48px] px-0.5 py-1"
             : "py-2 px-1 min-h-[68px]",
@@ -713,12 +713,6 @@ export default function App() {
                 : "border-[#1a3a42]/70 bg-[#07222b]/80 text-[#3f6a70]",
           forced && isCrownUnit ? "attn-badge ring-1 ring-gold" : "",
         ].join(" ")}
-        style={{
-          clipPath:
-            mode === "mobile"
-              ? "polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)"
-              : "polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)",
-        }}
       >
         <span className={`font-display font-black leading-none ${mode === "mobile" ? "text-base sm:text-lg" : "text-xl"} ${v === 9 ? "text-gold-2" : ""}`}>
           {v}
@@ -811,7 +805,7 @@ export default function App() {
             <>
               <div
                 className={[
-                  "flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 border text-[10px] sm:text-xs font-bold uppercase tracking-[0.14em] sm:tracking-[0.2em] transition-colors duration-300 shrink-0",
+                  "flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 border rounded-[3px] text-[10px] sm:text-xs font-bold uppercase tracking-[0.14em] sm:tracking-[0.2em] transition-colors duration-300 shrink-0",
                   over
                     ? "border-[#2a5a63] text-mist"
                     : paused
@@ -820,7 +814,6 @@ export default function App() {
                         ? "border-blood/60 text-blood-2 bg-blood/10"
                         : "border-gold/60 text-gold-2 bg-gold/10",
                 ].join(" ")}
-                style={{ clipPath: "polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)" }}
               >
                 {over ? (
                   <><span className="hidden sm:inline">Battle ended</span><span className="sm:hidden">Ended</span></>
@@ -1112,23 +1105,21 @@ export default function App() {
             <div className="lg:hidden flex items-center justify-center gap-2 mb-2 shrink-0">
               <button
                 onClick={() => setMenuTab("brief")}
-                className={`flex-1 max-w-[200px] py-1.5 px-3 text-xs font-display font-bold uppercase tracking-[0.14em] border transition-all duration-150 ${
+                className={`flex-1 max-w-[200px] py-1.5 px-3 text-xs font-display font-bold uppercase tracking-[0.14em] border rounded-[3px] transition-all duration-150 ${
                   menuTab === "brief"
                     ? "border-gold text-gold-2 bg-gold/15 shadow-[0_0_12px_rgba(255,201,60,0.25)]"
                     : "border-[#1a4a54] text-mist hover:text-fog bg-[#0a2b34]/40"
                 }`}
-                style={{ clipPath: "polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)" }}
               >
                 BATTLE DECREE
               </button>
               <button
                 onClick={() => setMenuTab("marches")}
-                className={`flex-1 max-w-[200px] py-1.5 px-3 text-xs font-display font-bold uppercase tracking-[0.14em] border transition-all duration-150 ${
+                className={`flex-1 max-w-[200px] py-1.5 px-3 text-xs font-display font-bold uppercase tracking-[0.14em] border rounded-[3px] transition-all duration-150 ${
                   menuTab === "marches"
                     ? "border-gold text-gold-2 bg-gold/15 shadow-[0_0_12px_rgba(255,201,60,0.25)]"
                     : "border-[#1a4a54] text-mist hover:text-fog bg-[#0a2b34]/40"
                 }`}
-                style={{ clipPath: "polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)" }}
               >
                 MARCH TABLE (9)
               </button>
@@ -1191,10 +1182,9 @@ export default function App() {
                           sfx.select();
                         }}
                         className={[
-                          "px-2.5 sm:px-3 py-1 sm:py-1.5 border transition-all duration-150 hover:-translate-y-0.5 active:scale-95",
+                          "px-2.5 sm:px-3 py-1 sm:py-1.5 border rounded-[3px] transition-all duration-150 hover:-translate-y-0.5 active:scale-95",
                           diff === d.id ? "btn-gold border-gold shadow-[0_0_10px_rgba(255,201,60,0.3)]" : "btn-ghost",
                         ].join(" ")}
-                        style={{ clipPath: "polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)" }}
                       >
                         <span className="font-display font-bold text-xs sm:text-sm tracking-[0.12em] block leading-none">{d.name}</span>
                         <span className={`text-[8px] sm:text-[9px] ${diff === d.id ? "text-[#5c3c00]" : "text-mist"}`}>{d.blurb}</span>
