@@ -12,12 +12,13 @@
 
 ## ⚔️ The Concept
 
-In **Crownfall**, two rival warlords command a warband composed of the numbers **1 through 9**. The board is a standard $9 \times 9$ battlefield divided into nine $3 \times 3$ provinces.
+In **Crownfall**, two rival warlords command a warband composed of the numbers **1 through 9**. The board is a tactical $7 \times 7$ battlefield.
 
-Every digit possesses unique movement patterns, strike rules, and tactical constraints inspired by Sudoku:
-- **Digit 9 is the Crown (The King)**: If your Crown falls or is pinned with no escape, you suffer **Regicide** and lose the war.
-- **Digits 1–8 are Tactical Units**: Ranging from flexible vanguard pawns to agile skirmishers and high-impact defenders.
-- **Province Control & Dominance**: Lock down rows, columns, and $3 \times 3$ subgrids to achieve victory through territorial dominance.
+Every digit possesses unique movement patterns, strike rules, and tactical constraints inspired by chess and Sudoku:
+- **Digit 9 is The Crown**: Guard it with your life. If your Crown falls, you suffer **Crownfall** and lose immediately. Must be deployed by your 5th turn.
+- **Digits 1–8 are Tactical Units**: Each has its own distinct march (Footman, Courier, Knight, Duelist, Lancer, Skirmisher, Warden, Warlord). A piece may capture any enemy of equal or lesser value — and ANY piece may slay the Crown (9).
+- **The Law of Rows**: Deployment forbids any two pieces of equal digit value sharing a row or column (across either side).
+- **The Royal Decree**: If 60 moves elapse without regicide, the battle ends by Royal Decree, decided by total surviving material.
 
 ---
 

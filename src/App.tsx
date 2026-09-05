@@ -7,6 +7,7 @@ import {
   applyAction,
   createGame,
   deploySquares,
+  endByMaterial,
   material,
   mustDeployCrown,
   pieceTargets,
@@ -308,6 +309,20 @@ export default function App() {
       }
       const act = aiChoose(g, diffRef.current);
       if (!act) {
+        g.passes++;
+        g.plies[1]++;
+        if (g.passes >= 2) {
+          endByMaterial(g, "stalemate");
+          refresh();
+          finish();
+          return;
+        }
+        if (g.plies[0] + g.plies[1] >= MAX_PLIES) {
+          endByMaterial(g, "decree");
+          refresh();
+          finish();
+          return;
+        }
         g.turn = 0;
         refresh();
         setAiThinking(false);
@@ -474,7 +489,7 @@ export default function App() {
   const doMove = useCallback(
     (a: MoveAction) => {
       const g = gameRef.current;
-      if (!g) return;
+      if (!g || mustDeployCrown(g, 0)) return;
       undoSnap.current = structuredClone(g);
       setCanUndo(true);
       const res = applyAction(g, a);
@@ -518,6 +533,11 @@ export default function App() {
           return;
         }
         if (pc && pc.side === 0) {
+          if (crownForced) {
+            sfx.invalid();
+            toastMsg("DECREE — THE CROWN MUST TAKE THE FIELD FIRST");
+            return;
+          }
           setSelReserve(null);
           setSelInfo(null);
           r.view.deployDots = [];
@@ -531,6 +551,13 @@ export default function App() {
             : "THE LAW OF ROWS FORBIDS THAT SQUARE",
         );
         r.shake(3);
+        return;
+      }
+
+      if (crownForced) {
+        clearSel();
+        sfx.invalid();
+        toastMsg("DECREE — THE CROWN MUST TAKE THE FIELD FIRST");
         return;
       }
 
@@ -548,11 +575,6 @@ export default function App() {
 
       // 2. If clicking own piece, select it
       if (pc && pc.side === 0) {
-        if (crownForced) {
-          sfx.invalid();
-          toastMsg("DECREE — THE CROWN MUST TAKE THE FIELD FIRST");
-          return;
-        }
         selectPiece(pc);
         return;
       }
@@ -587,11 +609,12 @@ export default function App() {
       let cursor = "default";
       if (cell && g.turn === 0 && !g.over && !pausedRef.current && screenRef.current === "play") {
         const pc = g.grid[cell.r][cell.c];
+        const crownForced = mustDeployCrown(g, 0);
         if (selReserve != null) {
           if (deploySquares(g, 0, selReserve).some((s) => s.r === cell.r && s.c === cell.c)) cursor = "pointer";
-          else if (pc && pc.side === 0) cursor = "pointer";
-        } else if (pc && pc.side === 0) cursor = "pointer";
-        else if (selPieceRef.current != null) {
+          else if (pc && pc.side === 0 && !crownForced) cursor = "pointer";
+        } else if (pc && pc.side === 0 && !crownForced) cursor = "pointer";
+        else if (selPieceRef.current != null && !crownForced) {
           const p = g.pieces.find((x) => x.id === selPieceRef.current);
           if (p && pieceTargets(g, p).some((t) => t.r === cell.r && t.c === cell.c)) cursor = "pointer";
         }
@@ -655,7 +678,7 @@ export default function App() {
 
   const undo = useCallback(() => {
     const g = gameRef.current;
-    if (!g || !undoSnap.current || !aiThinking || g.over) return;
+    if (!g || !undoSnap.current || g.over) return;
     if (aiTimer.current) window.clearTimeout(aiTimer.current);
     gameRef.current = structuredClone(undoSnap.current);
     undoSnap.current = null;
@@ -666,7 +689,7 @@ export default function App() {
     sfx.buttonClick();
     toastMsg("MOVE RECALLED");
     setHint(playerHint(gameRef.current));
-  }, [aiThinking, clearSel, playerHint, refresh, toastMsg]);
+  }, [clearSel, playerHint, refresh, toastMsg]);
 
   const toggleMute = useCallback(() => {
     setMuted((m) => {
@@ -737,7 +760,7 @@ export default function App() {
 
   // ── derived ─────────────────────────────────────────────────────────────────
   const totalPlies = hud.plies[0] + hud.plies[1];
-  const decreeLeft = MAX_PLIES - totalPlies;
+  const decreeLeft = Math.max(0, MAX_PLIES - totalPlies);
   const inBattle = screen === "play";
   const over = hud.over;
 
@@ -923,7 +946,7 @@ export default function App() {
               <button
                 className="icon-btn"
                 onClick={undo}
-                disabled={!canUndo || !aiThinking}
+                disabled={!canUndo}
                 title="Recall your last move (U)"
                 aria-label="Recall last move"
               >
@@ -1464,6 +1487,14 @@ export default function App() {
               <div className="flex justify-between border-b border-[#1a4a54]/60 pb-1">
                 <span className="text-mist uppercase tracking-widest text-[9px] sm:text-[10px]">Enemy score</span>
                 <span className="font-display font-bold text-blood-2 text-sm sm:text-base">{hud.score[1]}</span>
+              </div>
+              <div className="flex justify-between border-b border-[#1a4a54]/60 pb-1">
+                <span className="text-mist uppercase tracking-widest text-[9px] sm:text-[10px]">Your Material</span>
+                <span className="font-display font-bold text-gold-2 text-sm sm:text-base">{hud.material[0]}</span>
+              </div>
+              <div className="flex justify-between border-b border-[#1a4a54]/60 pb-1">
+                <span className="text-mist uppercase tracking-widest text-[9px] sm:text-[10px]">Enemy Material</span>
+                <span className="font-display font-bold text-blood-2 text-sm sm:text-base">{hud.material[1]}</span>
               </div>
               <div className="flex justify-between border-b border-[#1a4a54]/60 pb-1">
                 <span className="text-mist uppercase tracking-widest text-[9px] sm:text-[10px]">Foes slain</span>

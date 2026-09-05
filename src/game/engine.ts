@@ -243,7 +243,7 @@ export interface ApplyResult {
   moved?: Piece;
 }
 
-function endByMaterial(state: GameState, reason: OverInfo["reason"]) {
+export function endByMaterial(state: GameState, reason: OverInfo["reason"]) {
   const m0 = material(state, 0);
   const m1 = material(state, 1);
   state.over = { winner: m0 === m1 ? -1 : m0 > m1 ? 0 : 1, reason };
@@ -343,7 +343,8 @@ export function threatMap(state: GameState, bySide: Side): Map<string, number[]>
         const c = p.c + dc;
         if (!inBounds(r, c)) continue;
         const t = state.grid[r][c];
-        if (!t || t.side !== bySide) add(r, c, p.value);
+        if (!t) add(r, c, p.value);
+        else if (t.side !== bySide && canCapture(p, t)) add(r, c, p.value);
         continue;
       }
       for (let step = 1; step <= spec.max; step++) {
@@ -352,7 +353,7 @@ export function threatMap(state: GameState, bySide: Side): Map<string, number[]>
         if (!inBounds(r, c)) break;
         const t = state.grid[r][c];
         if (t) {
-          if (t.side !== bySide) add(r, c, p.value);
+          if (t.side !== bySide && canCapture(p, t)) add(r, c, p.value);
           break;
         }
         add(r, c, p.value);
@@ -446,5 +447,5 @@ export function aiChoose(state: GameState, diff: Difficulty): Action | null {
     consider(m, s);
   }
 
-  return best;
+  return best ?? deploys[0] ?? moves[0] ?? null;
 }
