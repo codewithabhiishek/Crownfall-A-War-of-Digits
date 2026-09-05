@@ -23,12 +23,16 @@ export interface Piece {
 }
 export interface MoveTarget extends Pos {
   capture?: Piece;
+  assisted?: boolean;
+  assistValue?: number;
 }
 export interface MoveAction {
   kind: "move";
   piece: Piece;
   to: Pos;
   capture?: Piece;
+  assisted?: boolean;
+  assistValue?: number;
 }
 export interface DeployAction {
   kind: "deploy";
@@ -145,6 +149,36 @@ export function createGame(): GameState {
   };
 }
 
+export function canPieceReach(state: GameState, p: Piece, targetR: number, targetC: number): boolean {
+  const dr = targetR - p.r;
+  const dc = targetC - p.c;
+  const spec = MARCH[p.value];
+  if (spec.jump) {
+    return spec.dirs.some(([d_r, d_c]) => d_r === dr && d_c === dc);
+  }
+  for (const [d_r, d_c] of spec.dirs) {
+    for (let step = 1; step <= spec.max; step++) {
+      const curR = p.r + d_r * step;
+      const curC = p.c + d_c * step;
+      if (curR === targetR && curC === targetC) return true;
+      if (!inBounds(curR, curC) || state.grid[curR][curC] !== null) break;
+    }
+  }
+  return false;
+}
+
+export function findBestSupporter(state: GameState, side: Side, r: number, c: number, excludeId: number): number {
+  let best = 0;
+  for (const p of state.pieces) {
+    if (p.side === side && p.id !== excludeId) {
+      if (canPieceReach(state, p, r, c)) {
+        if (p.value > best) best = p.value;
+      }
+    }
+  }
+  return best;
+}
+
 // ── move generation ───────────────────────────────────────────────────────────
 export function pieceTargets(state: GameState, p: Piece): MoveTarget[] {
   const spec = MARCH[p.value];
@@ -155,8 +189,18 @@ export function pieceTargets(state: GameState, p: Piece): MoveTarget[] {
       const c = p.c + dc;
       if (!inBounds(r, c)) continue;
       const t = state.grid[r][c];
-      if (!t) out.push({ r, c });
-      else if (t.side !== p.side && canCapture(p, t)) out.push({ r, c, capture: t });
+      if (!t) {
+        out.push({ r, c });
+      } else if (t.side !== p.side) {
+        if (canCapture(p, t)) {
+          out.push({ r, c, capture: t, assisted: false });
+        } else {
+          const sup = findBestSupporter(state, p.side, r, c, p.id);
+          if (p.value + sup >= t.value) {
+            out.push({ r, c, capture: t, assisted: true, assistValue: sup });
+          }
+        }
+      }
       continue;
     }
     for (let step = 1; step <= spec.max; step++) {
@@ -167,7 +211,16 @@ export function pieceTargets(state: GameState, p: Piece): MoveTarget[] {
       if (!t) {
         out.push({ r, c });
       } else {
-        if (t.side !== p.side && canCapture(p, t)) out.push({ r, c, capture: t });
+        if (t.side !== p.side) {
+          if (canCapture(p, t)) {
+            out.push({ r, c, capture: t, assisted: false });
+          } else {
+            const sup = findBestSupporter(state, p.side, r, c, p.id);
+            if (p.value + sup >= t.value) {
+              out.push({ r, c, capture: t, assisted: true, assistValue: sup });
+            }
+          }
+        }
         break;
       }
     }
@@ -222,8 +275,16 @@ export function actionsFor(state: GameState, side: Side): ActionSet {
   if (!crownForced) {
     for (const p of state.pieces) {
       if (p.side !== side) continue;
-      for (const t of pieceTargets(state, p))
-        moves.push({ kind: "move", piece: p, to: { r: t.r, c: t.c }, capture: t.capture });
+      for (const t of pieceTargets(state, p)) {
+        moves.push({
+          kind: "move",
+          piece: p,
+          to: { r: t.r, c: t.c },
+          capture: t.capture,
+          assisted: t.assisted,
+          assistValue: t.assistValue,
+        });
+      }
     }
   }
   return { moves, deploys };
@@ -241,6 +302,8 @@ export interface ApplyResult {
   captured?: Piece;
   placed?: Piece;
   moved?: Piece;
+  assisted?: boolean;
+  assistValue?: number;
 }
 
 export function endByMaterial(state: GameState, reason: OverInfo["reason"]) {
@@ -275,6 +338,8 @@ export function applyAction(state: GameState, action: Action): ApplyResult {
       state.pieces = state.pieces.filter((x) => x.id !== cap.id);
       state.captures[side].push(cap.value);
       res.captured = cap;
+      res.assisted = action.assisted;
+      res.assistValue = action.assistValue;
     }
     p.r = action.to.r;
     p.c = action.to.c;
@@ -344,7 +409,11 @@ export function threatMap(state: GameState, bySide: Side): Map<string, number[]>
         if (!inBounds(r, c)) continue;
         const t = state.grid[r][c];
         if (!t) add(r, c, p.value);
-        else if (t.side !== bySide && canCapture(p, t)) add(r, c, p.value);
+        else if (t.side !== bySide) {
+          if (canCapture(p, t) || p.value + findBestSupporter(state, bySide, r, c, p.id) >= t.value) {
+            add(r, c, p.value);
+          }
+        }
         continue;
       }
       for (let step = 1; step <= spec.max; step++) {
@@ -353,7 +422,11 @@ export function threatMap(state: GameState, bySide: Side): Map<string, number[]>
         if (!inBounds(r, c)) break;
         const t = state.grid[r][c];
         if (t) {
-          if (t.side !== bySide && canCapture(p, t)) add(r, c, p.value);
+          if (t.side !== bySide) {
+            if (canCapture(p, t) || p.value + findBestSupporter(state, bySide, r, c, p.id) >= t.value) {
+              add(r, c, p.value);
+            }
+          }
           break;
         }
         add(r, c, p.value);
@@ -367,85 +440,221 @@ const dist = (a: Pos, b: Pos) => Math.abs(a.r - b.r) + Math.abs(a.c - b.c);
 const cheb = (a: Pos, b: Pos) => Math.max(Math.abs(a.r - b.r), Math.abs(a.c - b.c));
 const CENTER: Pos = { r: 3, c: 3 };
 
-// ── the enemy mind ────────────────────────────────────────────────────────────
+// ── the enemy mind (Alpha-Beta Minimax) ────────────────────────────────────────
 export type Difficulty = "squire" | "knight" | "warlord";
+
+export function evaluateState(state: GameState, aiSide: Side): number {
+  if (state.over) {
+    if (state.over.winner === aiSide) return 100000;
+    if (state.over.winner === -1) return 0;
+    return -100000;
+  }
+  const opp = other(aiSide);
+
+  // 1. Material score (balance of surviving pieces + reserve)
+  const myMat = material(state, aiSide);
+  const oppMat = material(state, opp);
+  const matScore = (myMat - oppMat) * 18;
+
+  // 2. War score (captures)
+  const myWar = warScore(state, aiSide);
+  const oppWar = warScore(state, opp);
+  const warDiff = (myWar - oppWar) * 2;
+
+  // 3. Crown safety
+  const myCrown = state.pieces.find((p) => p.side === aiSide && p.value === 9);
+  const oppCrown = state.pieces.find((p) => p.side === opp && p.value === 9);
+
+  let crownSafety = 0;
+  const oppThreats = threatMap(state, opp);
+  const myThreats = threatMap(state, aiSide);
+
+  if (myCrown) {
+    const threatsToMe = oppThreats.get(key(myCrown.r, myCrown.c));
+    if (threatsToMe && threatsToMe.length > 0) {
+      crownSafety -= 4000; // Immediate threat to Crown!
+    }
+  } else if (!state.reserves[aiSide].includes(9)) {
+    return -100000;
+  }
+
+  if (oppCrown) {
+    const threatsToOpp = myThreats.get(key(oppCrown.r, oppCrown.c));
+    if (threatsToOpp && threatsToOpp.length > 0) {
+      crownSafety += 3500; // Direct attack on enemy Crown!
+    }
+  } else if (!state.reserves[opp].includes(9)) {
+    return 100000;
+  }
+
+  // 4. Center control & mobility
+  let positional = 0;
+  for (const p of state.pieces) {
+    const dCenter = cheb(p, CENTER);
+    const weight = p.value === 9 ? -1.5 : p.value * 0.4;
+    const score = (3 - dCenter) * weight;
+    if (p.side === aiSide) positional += score;
+    else positional -= score;
+  }
+
+  // 5. Tactical danger / undefended pieces
+  let tactical = 0;
+  for (const p of state.pieces) {
+    if (p.value === 9) continue;
+    if (p.side === aiSide) {
+      const atts = oppThreats.get(key(p.r, p.c));
+      if (atts && atts.length > 0) {
+        tactical -= p.value * 8;
+      }
+    } else {
+      const atts = myThreats.get(key(p.r, p.c));
+      if (atts && atts.length > 0) {
+        tactical += p.value * 8;
+      }
+    }
+  }
+
+  return matScore + warDiff + crownSafety + positional * 4 + tactical;
+}
+
+function minimax(
+  state: GameState,
+  depth: number,
+  alpha: number,
+  beta: number,
+  isMaximizing: boolean,
+  aiSide: Side,
+): number {
+  if (depth === 0 || state.over) {
+    return evaluateState(state, aiSide);
+  }
+
+  const currentSide = state.turn;
+  const { moves, deploys } = actionsFor(state, currentSide);
+  const actions: Action[] = [...moves, ...deploys];
+
+  if (actions.length === 0) {
+    const clone = structuredClone(state);
+    clone.passes++;
+    clone.plies[currentSide]++;
+    if (clone.passes >= 2) {
+      endByMaterial(clone, "stalemate");
+    } else if (clone.plies[0] + clone.plies[1] >= MAX_PLIES) {
+      endByMaterial(clone, "decree");
+    }
+    clone.turn = other(currentSide);
+    return minimax(clone, depth - 1, alpha, beta, clone.turn === aiSide, aiSide);
+  }
+
+  // Move ordering: captures (especially Crown and high-value pieces) first
+  actions.sort((a, b) => {
+    let sa = 0;
+    let sb = 0;
+    if (a.kind === "move" && a.capture) {
+      sa = a.capture.value === 9 ? 10000 : (a.assisted ? 300 : 200) + a.capture.value * 20;
+    }
+    if (b.kind === "move" && b.capture) {
+      sb = b.capture.value === 9 ? 10000 : (b.assisted ? 300 : 200) + b.capture.value * 20;
+    }
+    return sb - sa;
+  });
+
+  // Candidate pruning for minimax speed
+  const maxBranch = depth >= 2 ? 14 : 8;
+  const candidates = actions.length > maxBranch ? actions.slice(0, maxBranch) : actions;
+
+  if (isMaximizing) {
+    let maxEval = -Infinity;
+    for (const act of candidates) {
+      const clone = structuredClone(state);
+      applyAction(clone, act);
+      const ev = minimax(clone, depth - 1, alpha, beta, clone.turn === aiSide, aiSide);
+      if (ev > maxEval) maxEval = ev;
+      if (ev > alpha) alpha = ev;
+      if (beta <= alpha) break; // Beta cutoff
+    }
+    return maxEval;
+  } else {
+    let minEval = Infinity;
+    for (const act of candidates) {
+      const clone = structuredClone(state);
+      applyAction(clone, act);
+      const ev = minimax(clone, depth - 1, alpha, beta, clone.turn === aiSide, aiSide);
+      if (ev < minEval) minEval = ev;
+      if (ev < beta) beta = ev;
+      if (beta <= alpha) break; // Alpha cutoff
+    }
+    return minEval;
+  }
+}
 
 export function aiChoose(state: GameState, diff: Difficulty): Action | null {
   const side: Side = 1;
   const { moves, deploys } = actionsFor(state, side);
-  if (moves.length === 0 && deploys.length === 0) return null;
+  const actions: Action[] = [...moves, ...deploys];
+  if (actions.length === 0) return null;
 
-  const noise = diff === "squire" ? 16 : diff === "knight" ? 6 : 2;
-  const useThreats = diff !== "squire";
-  const threats = useThreats ? threatMap(state, 0) : null;
-  const enemyCrown = state.pieces.find((p) => p.side === 0 && p.value === 9) ?? null;
-  const myCrown = state.pieces.find((p) => p.side === 1 && p.value === 9) ?? null;
-  const targetRef: Pos = enemyCrown ? { r: enemyCrown.r, c: enemyCrown.c } : { r: 5, c: 3 };
-  const lateGame = state.plies[0] + state.plies[1] > MAX_PLIES * 0.55;
-
-  const dangerPenalty = (square: Pos, myValue: number): number => {
-    if (!threats) return 0;
-    const atts = threats.get(key(square.r, square.c));
-    if (!atts || atts.length === 0) return 0;
-    if (myValue === 9) return -120;
-    const maxAtt = Math.max(...atts);
-    if (maxAtt >= myValue) return -(myValue * 10 + 10);
-    return 0;
-  };
-
-  let best: Action | null = null;
-  let bestScore = -Infinity;
-
-  const consider = (a: Action, s: number) => {
-    s += (Math.random() - 0.5) * 2 * noise;
-    if (s > bestScore) {
-      bestScore = s;
-      best = a;
-    }
-  };
-
-  for (const d of deploys) {
-    let s = d.value * 2.2 + (3 - cheb(d.to, CENTER)) * 0.6;
-    if (d.value === 9) {
-      s += d.to.r === 0 ? 3 : 0;
-      s += d.to.c === 0 || d.to.c === N - 1 ? 2 : 0;
-      s += dangerPenalty(d.to, 9) * 0.7;
-    } else {
-      s += dangerPenalty(d.to, d.value) * 0.8;
-      if (d.value >= 6 && state.plies[1] < 8) s += 3; // bring heavies out early
-      if (enemyCrown && d.value >= 5) s += (6 - cheb(d.to, enemyCrown)) * 0.8;
-    }
-    if (lateGame) s += d.value * 1.2;
-    consider(d, s);
-  }
-
-  for (const m of moves) {
-    const p = m.piece;
-    let s = 0;
-    if (m.capture) {
-      s += m.capture.value === 9 ? 320 : m.capture.value * 12 + 6;
-      if (diff === "warlord" && myCrown && cheb(m.capture, myCrown) <= 2) s += 26;
-    }
-    const before = dist(p, targetRef);
-    const after = dist(m.to, targetRef);
-    s += (before - after) * (p.value === 9 ? 0.15 : p.value >= 5 ? 1.9 : 1.1);
-    s += dangerPenalty(m.to, p.value);
-    // escaping danger is wise
-    if (threats) {
-      const curAtts = threats.get(key(p.r, p.c));
-      if (curAtts && curAtts.length > 0) {
-        const inDanger = p.value === 9 || Math.max(...curAtts) >= p.value;
-        if (inDanger) {
-          const toAtts = threats.get(key(m.to.r, m.to.c));
-          const safe =
-            !toAtts || toAtts.length === 0 || (p.value !== 9 && Math.max(...toAtts) < p.value);
-          if (safe && !m.capture) s += p.value * 3.5 + (p.value === 9 ? 60 : 0);
-        }
+  // Squire (Easy): Fast 1-ply search with noise
+  if (diff === "squire") {
+    let best: Action | null = null;
+    let bestScore = -Infinity;
+    for (const act of actions) {
+      const clone = structuredClone(state);
+      applyAction(clone, act);
+      const score = evaluateState(clone, side) + (Math.random() - 0.5) * 60;
+      if (score > bestScore) {
+        bestScore = score;
+        best = act;
       }
     }
-    if (lateGame) s += m.capture ? m.capture.value * 4 : 0;
-    consider(m, s);
+    return best ?? actions[0];
   }
 
-  return best ?? deploys[0] ?? moves[0] ?? null;
+  // Knight: 2-ply Minimax + Alpha-Beta
+  // Warlord: 3-ply Minimax + Alpha-Beta
+  const depth = diff === "warlord" ? 3 : 2;
+
+  // Move ordering at root
+  actions.sort((a, b) => {
+    let sa = 0;
+    let sb = 0;
+    if (a.kind === "move" && a.capture) {
+      sa = a.capture.value === 9 ? 10000 : (a.assisted ? 300 : 200) + a.capture.value * 20;
+    } else if (a.kind === "deploy") {
+      sa = (a.value === 9 ? 50 : a.value * 2);
+    }
+    if (b.kind === "move" && b.capture) {
+      sb = b.capture.value === 9 ? 10000 : (b.assisted ? 300 : 200) + b.capture.value * 20;
+    } else if (b.kind === "deploy") {
+      sb = (b.value === 9 ? 50 : b.value * 2);
+    }
+    return sb - sa;
+  });
+
+  const rootCandidates = actions.length > 16 ? actions.slice(0, 16) : actions;
+  let bestAction: Action = actions[0];
+  let bestScore = -Infinity;
+  let alpha = -Infinity;
+  const beta = Infinity;
+
+  for (const act of rootCandidates) {
+    const clone = structuredClone(state);
+    applyAction(clone, act);
+
+    // Immediate winning move (Crown captured)
+    if (clone.over && clone.over.winner === side) {
+      return act;
+    }
+
+    const score = minimax(clone, depth - 1, alpha, beta, clone.turn === side, side);
+    if (score > bestScore) {
+      bestScore = score;
+      bestAction = act;
+    }
+    if (score > alpha) {
+      alpha = score;
+    }
+  }
+
+  return bestAction;
 }

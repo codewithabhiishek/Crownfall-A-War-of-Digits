@@ -259,6 +259,16 @@ export default function App() {
           r.shake(17);
           r.flash("255,255,255", 1);
           toastMsg(cap.side === 0 ? "YOUR CROWN HAS FALLEN" : "THE ENEMY CROWN FALLS");
+        } else if (res.assisted) {
+          sfx.assistCapture();
+          r.shake(10);
+          r.burst(cap.r, cap.c, "#ffd700", 30, 220);
+          r.floatText(cap.r, cap.c, `COMBINED ARMS (+${res.assistValue})`, "#ffd700", true);
+          toastMsg(
+            actor === 0
+              ? `COMBINED ARMS: ASSIST (+${res.assistValue}) TOOK ENEMY ${PIECE_NAMES[cap.value].toUpperCase()}!`
+              : `CRIMSON ASSAULT: ENEMY ASSIST TOOK YOUR ${PIECE_NAMES[cap.value].toUpperCase()}!`,
+          );
         } else {
           sfx.capture();
           r.shake(7);
@@ -453,8 +463,9 @@ export default function App() {
       r.view.moveTargets = targets;
       r.view.deployDots = [];
       const caps = targets.filter((t) => t.capture).length;
+      const assists = targets.filter((t) => t.capture && t.assisted).length;
       setSelInfo(
-        `${PIECE_NAMES[p.value]} ${p.value} — ${MARCH_TEXT[p.value]} · ${targets.length - caps} squares to march${caps > 0 ? ` · ${caps} capture${caps > 1 ? "s" : ""} (red rings)` : ""}`,
+        `${PIECE_NAMES[p.value]} ${p.value} — ${MARCH_TEXT[p.value]} · ${targets.length - caps} squares to march${caps > 0 ? ` · ${caps} capture${caps > 1 ? "s" : ""}` : ""}${assists > 0 ? ` · ${assists} assisted assault${assists > 1 ? "s" : ""} (gold dual-ring)` : ""}`,
       );
       sfx.chipSelect(p.value);
     },
@@ -567,7 +578,14 @@ export default function App() {
         if (p) {
           const t = pieceTargets(g, p).find((t) => t.r === cell.r && t.c === cell.c);
           if (t) {
-            doMove({ kind: "move", piece: p, to: { r: cell.r, c: cell.c }, capture: t.capture });
+            doMove({
+              kind: "move",
+              piece: p,
+              to: { r: cell.r, c: cell.c },
+              capture: t.capture,
+              assisted: t.assisted,
+              assistValue: t.assistValue,
+            });
             return;
           }
         }
@@ -584,7 +602,7 @@ export default function App() {
         sfx.invalid();
         toastMsg(
           selPieceRef.current != null
-            ? "YOUR SELECTED UNIT CANNOT CAPTURE THAT ENEMY"
+            ? "YOUR SELECTED UNIT CANNOT OVERPOWER THAT ENEMY (EVEN WITH FLANKING ASSIST)"
             : "THAT PIECE SERVES THE CRIMSON COURT — SELECT YOUR UNIT TO ATTACK",
         );
         return;

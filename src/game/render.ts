@@ -417,19 +417,53 @@ export class Renderer {
       const cx = ox + t.c * cell + cell / 2;
       const cy = oy + t.r * cell + cell / 2;
       if (t.capture) {
-        const a = 0.55 + 0.35 * Math.sin(this.time * 6);
-        ctx.strokeStyle = `rgba(255,71,87,${a})`;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(cx, cy, cell * 0.4, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.lineWidth = 2;
-        for (let k = 0; k < 4; k++) {
-          const ang = (Math.PI / 2) * k + Math.PI / 4;
+        if (t.assisted) {
+          const a = 0.65 + 0.35 * Math.sin(this.time * 7);
+          ctx.strokeStyle = `rgba(255,201,60,${a})`;
+          ctx.lineWidth = 2.5;
           ctx.beginPath();
-          ctx.moveTo(cx + Math.cos(ang) * cell * 0.34, cy + Math.sin(ang) * cell * 0.34);
-          ctx.lineTo(cx + Math.cos(ang) * cell * 0.46, cy + Math.sin(ang) * cell * 0.46);
+          ctx.arc(cx, cy, cell * 0.44, 0, Math.PI * 2);
           ctx.stroke();
+
+          ctx.strokeStyle = `rgba(255,71,87,${a})`;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(cx, cy, cell * 0.35, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.lineWidth = 2;
+          for (let k = 0; k < 4; k++) {
+            const ang = (Math.PI / 2) * k + Math.PI / 4;
+            ctx.beginPath();
+            ctx.moveTo(cx + Math.cos(ang) * cell * 0.28, cy + Math.sin(ang) * cell * 0.28);
+            ctx.lineTo(cx + Math.cos(ang) * cell * 0.48, cy + Math.sin(ang) * cell * 0.48);
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = `rgba(255,201,60,${a})`;
+          ctx.beginPath();
+          ctx.arc(cx + cell * 0.32, cy - cell * 0.32, cell * 0.13, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#1b0d00";
+          ctx.font = `bold ${Math.round(cell * 0.15)}px sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(`+${t.assistValue ?? ""}`, cx + cell * 0.32, cy - cell * 0.31);
+        } else {
+          const a = 0.55 + 0.35 * Math.sin(this.time * 6);
+          ctx.strokeStyle = `rgba(255,71,87,${a})`;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(cx, cy, cell * 0.4, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.lineWidth = 2;
+          for (let k = 0; k < 4; k++) {
+            const ang = (Math.PI / 2) * k + Math.PI / 4;
+            ctx.beginPath();
+            ctx.moveTo(cx + Math.cos(ang) * cell * 0.34, cy + Math.sin(ang) * cell * 0.34);
+            ctx.lineTo(cx + Math.cos(ang) * cell * 0.46, cy + Math.sin(ang) * cell * 0.46);
+            ctx.stroke();
+          }
         }
       } else {
         const a = 0.4 + 0.3 * Math.sin(this.time * 5);

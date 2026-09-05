@@ -17,6 +17,7 @@ In **Crownfall**, two rival warlords command a warband composed of the numbers *
 Every digit possesses unique movement patterns, strike rules, and tactical constraints inspired by chess and Sudoku:
 - **Digit 9 is The Crown**: Guard it with your life. If your Crown falls, you suffer **Crownfall** and lose immediately. Must be deployed by your 5th turn.
 - **Digits 1–8 are Tactical Units**: Each has its own distinct march (Footman, Courier, Knight, Duelist, Lancer, Skirmisher, Warden, Warlord). A piece may capture any enemy of equal or lesser value — and ANY piece may slay the Crown (9).
+- **Combined Arms (Assisted Assaults)**: Flanking teamwork allows lower-tier units to coordinate. If two friendly units threaten an enemy square, their power adds together ($V_A + \max(V_S) \ge V_T$), allowing nimble units to bring down heavy enemy warlords.
 - **The Law of Rows**: Deployment forbids any two pieces of equal digit value sharing a row or column (across either side).
 - **The Royal Decree**: If 60 moves elapse without regicide, the battle ends by Royal Decree, decided by total surviving material.
 
@@ -24,10 +25,14 @@ Every digit possesses unique movement patterns, strike rules, and tactical const
 
 ## 🎮 Key Features
 
+- **Multi-Ply Alpha-Beta Search AI**:
+  - **Squire**: 1-ply search with variance (casual intro).
+  - **Knight**: 2-ply Minimax with Alpha-Beta pruning (sees counter-attacks 1 round ahead).
+  - **Warlord**: 3-ply Minimax with Alpha-Beta pruning & capture ordering (calculates traps, forks, and assisted assaults).
+- **Combined Arms Targeting**: Canvas highlights assisted assaults with dual gold/crimson rings and `+Assist` indicators.
 - **Responsive War Engine**: Engineered for optimal play across mobile smartphones, tablets, and high-resolution desktop screens.
 - **Dynamic 9-Chip Warband Tray**: Clean, thumb-friendly unit deployment with dedicated indicators for the royal Crown #9.
-- **4-Chapter Campaign Marches**: Narrative single-player challenges introducing progressive tactical complexities and AI behaviors.
-- **Field Manual**: An in-game comprehensive codex detailing piece movements, province clash rules, and tactical doctrines.
+- **Field Manual**: An in-game comprehensive codex detailing piece movements, assisted assault mechanics, and tactical doctrines.
 - **Canvas-Accelerated Rendering**: High-performance grid rendering with sub-pixel alignment and smooth visual feedback.
 
 ---

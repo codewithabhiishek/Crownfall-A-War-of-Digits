@@ -153,6 +153,12 @@ export const sfx = {
     tone(820, 0.16, "sawtooth", 0.5, 110);
     tone(140, 0.18, "square", 0.5, 60, 0.02);
   },
+  assistCapture() {
+    tone(587, 0.2, "triangle", 0.5, 740);
+    tone(880, 0.22, "sine", 0.45, undefined, 0.03);
+    tone(140, 0.22, "square", 0.6, 60, 0.02);
+    noise(0.08, 0.28, 1600, 0.01);
+  },
   crownHit() {
     tone(90, 0.5, "sawtooth", 0.8, 40);
     tone(1200, 0.3, "sawtooth", 0.4, 100, 0.05);

@@ -186,6 +186,7 @@ const CHAPTERS: [string, string][] = [
   ["turn", "Your Turn"],
   ["moves", "Moves"],
   ["captures", "Captures"],
+  ["combined", "Combined Arms"],
   ["rule", "The Rule"],
   ["crown", "Crown & Clock"],
   ["buttons", "Buttons"],
@@ -413,15 +414,58 @@ export default function FieldManual({ firstWar, onClose }: { firstWar: boolean; 
             <div className="space-y-2">
               <Rev><CaptureRow you={5} enemy={3} ok note="5 is bigger than 3 — capture it (+30 points)." /></Rev>
               <Rev delay={60}><CaptureRow you={7} enemy={7} ok note="Equal numbers capture each other (+70)." /></Rev>
-              <Rev delay={120}><CaptureRow you={3} enemy={8} ok={false} note="3 is smaller than 8 — blocked. Move away or bring a bigger number." /></Rev>
+              <Rev delay={120}><CaptureRow you={3} enemy={8} ok={false} note="3 is smaller than 8 — blocked. Move away or bring Combined Arms." /></Rev>
               <Rev delay={180}>
                 <CaptureRow you={1} enemy={9} ok note="REGICIDE! Even the humble 1 can take the Crown — and win the war (+50)." />
               </Rev>
             </div>
           </Chap>
 
-          {/* 5 — THE RULE */}
-          <Chap id="rule" step="05" title="The one rule — Law of Rows">
+          {/* 5 — COMBINED ARMS */}
+          <Chap id="combined" step="05" title="Combined Arms — Assisted Assault">
+            <Rev>
+              <p className="text-sm text-mist mb-4 max-w-xl">
+                Small numbers can topple titans through <span className="text-gold-2 font-bold">Combined Arms</span>! When a unit is too small to capture an enemy alone, other friendly units threatening the same square <span className="text-flux font-bold">add their attack power</span>:
+              </p>
+            </Rev>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Rev>
+                <div className="panel-flat p-4 flex flex-col items-center gap-3 h-full">
+                  <MiniBoard
+                    pieces={[
+                      { r: 1, c: 1, side: 0, value: 3 },
+                      { r: 1, c: 3, side: 0, value: 4 },
+                      { r: 3, c: 2, side: 1, value: 7 },
+                    ]}
+                    marks={[{ r: 3, c: 2, kind: "ok" }]}
+                    caption={
+                      <>
+                        <span className="text-gold-2 font-bold">3 (Knight) + 4 (Duelist) = 7</span>. Both threaten the enemy 7 (Warden). Together, either piece can execute the capture!
+                      </>
+                    }
+                  />
+                </div>
+              </Rev>
+              <Rev delay={90}>
+                <div className="panel-flat p-4 space-y-3 h-full flex flex-col justify-center">
+                  <div className="flex items-center gap-2 text-gold font-display font-black text-sm tracking-wider">
+                    <span className="w-5 h-5 rounded-full border-2 border-gold flex items-center justify-center text-[10px]">★</span>
+                    THE ASSISTED FORMULA
+                  </div>
+                  <div className="p-3 bg-[#061d25] border border-[#144852] font-mono text-xs text-fog leading-relaxed rounded">
+                    Attack Power = Attacker + Highest Friendly Threat<br />
+                    <span className="text-flux font-bold">If Attack Power ≥ Enemy Digit ➔ Capture!</span>
+                  </div>
+                  <p className="text-xs text-mist leading-relaxed">
+                    Look for the <span className="text-gold-2 font-bold">pulsing gold dual-rings</span> with a <span className="text-gold-2 font-bold">+Assist badge</span> on the board. The striking unit moves in while your teammate holds position providing covering fire.
+                  </p>
+                </div>
+              </Rev>
+            </div>
+          </Chap>
+
+          {/* 6 — THE RULE */}
+          <Chap id="rule" step="06" title="The one rule — Law of Rows">
             <Rev>
               <p className="text-sm text-mist mb-4 max-w-xl">
                 <span className="text-fog font-bold">Two pieces with the same number can never share a row or a
@@ -464,8 +508,8 @@ export default function FieldManual({ firstWar, onClose }: { firstWar: boolean; 
             </div>
           </Chap>
 
-          {/* 6 — CROWN & CLOCK */}
-          <Chap id="crown" step="06" title="The Crown & the clock">
+          {/* 7 — CROWN & CLOCK */}
+          <Chap id="crown" step="07" title="The Crown & the clock">
             <div className="grid sm:grid-cols-2 gap-3">
               <Rev>
                 <div className="panel-flat panel-hover p-4 h-full">
@@ -502,8 +546,8 @@ export default function FieldManual({ firstWar, onClose }: { firstWar: boolean; 
             </div>
           </Chap>
 
-          {/* 7 — BUTTONS */}
-          <Chap id="buttons" step="07" title="Buttons & keys">
+          {/* 8 — BUTTONS */}
+          <Chap id="buttons" step="08" title="Buttons & keys">
             <div className="grid sm:grid-cols-2 gap-2.5 text-xs text-mist">
               <Rev>
                 <div className="panel-flat p-3.5 space-y-2.5 h-full">
